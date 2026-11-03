@@ -1,0 +1,5 @@
+# 環境變數（含密碼），範本見 .env.example
+.env
+
+# macOS
+.DS_Store

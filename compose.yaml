@@ -1,0 +1,22 @@
+# 本機開發用：只跑資料庫，後端與前端直接在本機執行
+services:
+  db:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      # 只綁 127.0.0.1，同一個網路的其他電腦連不到
+      - "127.0.0.1:5432:5432"
+    volumes:
+      # 18 版起資料放在 /var/lib/postgresql/<主版本>/docker，掛載上一層，升級主版本時新舊資料可以並存
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pgdata:

@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: vitals-api
+  docker:
+    compose:
+      # 從 backend/ 啟動，compose.yaml 在上一層
+      file: ../compose.yaml
+      # 後端停掉時資料庫繼續跑，重啟後端不用等資料庫重新啟動
+      lifecycle-management: start-only
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    show-sql: true
