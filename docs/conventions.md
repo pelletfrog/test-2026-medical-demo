@@ -87,4 +87,25 @@ TypeScript 只用基本寫法：替 API 的請求與回應定型別，其他地�
 
 讀 ProblemDetail 的 `detail` 顯示給使用者。
 
-### 2.5 測試
+### 2.5 配色
+
+shadcn/ui 用 Base UI 當元件底層（`base-nova` 樣式）。顏色都定義在 `frontend/app/globals.css` 的 `:root`，選色時要求文字對比達到 WCAG AA。
+
+- 只用語意變數（`bg-primary`、`text-muted-foreground`⋯），不在元件裡直接寫色碼，也不另外定義帶品牌名稱的變數
+- 只做淺色模式，不加 `.dark`
+- 畫面上不放任何公司的 logo 或名稱
+
+| 變數 | 色碼 | 用途 |
+|---|---|---|
+| `primary` / `primary-foreground` | `#00506e` / `#ffffff` | 主要按鈕、連結 |
+| `secondary`、`accent` / 對應的 `-foreground` | `#eef8f8` / `#002e4f` | 次要按鈕、滑過時的底色 |
+| `foreground` | `#353e5c` | 主要文字 |
+| `muted-foreground` | `#6d758f` | 說明文字；放在 `muted` 淡底上只有 4.1:1，小字盡量放白底 |
+| `input`、`ring` | `#6d758f`、`#00506e` | 輸入框外框、focus 外框，至少 3:1 才看得清楚 |
+| `destructive` / `destructive-foreground` | `#ff7d39` / `#002e4f` | 刪除、異常 |
+| `success` / `success-foreground` | `#83e254` / `#353e5c` | 正常 |
+| `warning` / `warning-foreground` | `#fed906` / `#353e5c` | 需注意 |
+
+`destructive`、`success`、`warning` 三種顏色配白字或直接當文字色，對比都不夠，所以只能當底色，上面一律配對應的 `-foreground`。生命徵象異常時，用「底色徽章 + 圖示 + 文字」表示，不要只靠改數字顏色，色弱的人也才分得出來。
+
+### 2.6 測試
