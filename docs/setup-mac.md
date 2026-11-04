@@ -75,11 +75,18 @@ docker --version
 docker compose version
 ```
 
-## 5. 確認有 Node.js
+## 5. 安裝 Node.js 24
+
+前端要用 Node 24（LTS）。Node 22.12 以前的版本無法載入 Tailwind 依賴的純 ESM 套件，`npm run build` 會失敗。
+版本寫在根目錄的 `.nvmrc`，用 nvm 管理：
 
 ```bash
-node --version
+nvm install 24
+nvm alias default 24   # 新開的終端機才會預設用 24
+node --version         # 應顯示 v24.x
 ```
+
+沒有 nvm 的話，先照 [nvm 官方說明](https://github.com/nvm-sh/nvm#installing-and-updating) 安裝。
 
 ## 6. VS Code
 

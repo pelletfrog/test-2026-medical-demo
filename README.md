@@ -24,7 +24,7 @@
 
 ### 需要的工具
 
-JDK 25、Docker、Node.js。第一次在 Mac 上建置環境，看 [docs/setup-mac.md](docs/setup-mac.md)。
+JDK 25、Docker、Node.js 24。第一次在 Mac 上建置環境，看 [docs/setup-mac.md](docs/setup-mac.md)。
 
 ### 啟動
 
