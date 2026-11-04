@@ -108,4 +108,11 @@ shadcn/ui 用 Base UI 當元件底層（`base-nova` 樣式）。顏色都定義�
 
 `destructive`、`success`、`warning` 三種顏色配白字或直接當文字色，對比都不夠，所以只能當底色，上面一律配對應的 `-foreground`。生命徵象異常時，用「底色徽章 + 圖示 + 文字」表示，不要只靠改數字顏色，色弱的人也才分得出來。
 
+`components/ui/` 是 shadcn 產生的檔案，不直接修改，因為重新安裝或升級時會被覆蓋。樣式不符合上面的規則時，在 `components/` 包一層：
+
+- 危險操作的按鈕用 `components/danger-button.tsx` 的 `DangerButton`，不直接用 `<Button variant="destructive">`
+- 生命徵象狀態用 `components/status-badge.tsx` 的 `StatusBadge`，不直接用 `<Badge variant="destructive">`
+
+所有元件與配色的實際樣子，看 `/design-system` 頁。
+
 ### 2.6 測試
