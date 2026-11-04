@@ -18,5 +18,24 @@ services:
       timeout: 3s
       retries: 10
 
+  pgadmin:
+    image: dpage/pgadmin4:9
+    labels:
+      # pgAdmin 啟動要十幾秒，後端用不到它，不必讓 Spring Boot 等它就緒才啟動
+      org.springframework.boot.readiness-check.tcp.disable: true
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+    ports:
+      # 和 db 一樣只綁 127.0.0.1，同網路的其他電腦開不到管理介面
+      - "127.0.0.1:5050:80"
+    volumes:
+      # 保留登入後加好的伺服器連線設定，重開容器不用再設一次
+      - pgadmin-data:/var/lib/pgadmin
+    depends_on:
+      db:
+        condition: service_healthy
+
 volumes:
   pgdata:
+  pgadmin-data:

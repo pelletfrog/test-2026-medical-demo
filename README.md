@@ -43,6 +43,13 @@ cd frontend && npm install && npm run dev
 | `./mvnw clean package` | 打包成 `target/*.jar` |
 | `./mvnw dependency:tree` | 看依賴樹 |
 | `./mvnw spring-boot:run -Dspring-boot.run.arguments=--debug` | 看自動設定報告：哪些設定生效、為什麼 |
+| `docker compose up -d` | 只啟動資料庫與 pgAdmin，不跑後端 |
+
+### 用 pgAdmin 看資料庫
+
+1. 啟動後端時會一起啟動 pgAdmin；只想看資料庫時用 `docker compose up -d`
+2. 開 <http://localhost:5050>，用 `.env` 的 `PGADMIN_EMAIL`、`PGADMIN_PASSWORD` 登入
+3. 新增伺服器：主機填 `db`（容器之間用服務名稱連，不是 `localhost`），埠 `5432`，帳密與資料庫名稱看 `.env` 的 `DB_USER`、`DB_PASSWORD`、`DB_NAME`
 
 ## 設計考量
 
