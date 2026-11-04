@@ -230,7 +230,7 @@ export default function DesignSystemPage() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-6xl space-y-12 px-4 py-8 sm:px-6 lg:py-12">
+    <main className="mx-auto w-full max-w-6xl space-y-12 px-4 py-8 sm:px-6">
       <header className="space-y-2">
         <h1 className="text-2xl font-semibold">Design System</h1>
         <p className="text-sm text-muted-foreground">

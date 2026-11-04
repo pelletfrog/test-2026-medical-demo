@@ -113,6 +113,8 @@ shadcn/ui 用 Base UI 當元件底層（`base-nova` 樣式）。顏色都定義�
 - 危險操作的按鈕用 `components/danger-button.tsx` 的 `DangerButton`，不直接用 `<Button variant="destructive">`
 - 生命徵象狀態用 `components/status-badge.tsx` 的 `StatusBadge`，不直接用 `<Badge variant="destructive">`
 
+例外：`hooks/use-mobile.ts` 原本過不了 lint，已改寫；重新安裝 sidebar 會被覆蓋，屆時照檔案裡的註解改回來。
+
 所有元件與配色的實際樣子，看 `/design-system` 頁。
 
 ### 2.6 測試
