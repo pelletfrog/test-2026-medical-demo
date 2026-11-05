@@ -9,7 +9,7 @@ import org.testcontainers.utility.DockerImageName;
 @TestConfiguration(proxyBeanMethods = false)
 class TestcontainersConfiguration {
 
-	// 版本和 compose.yaml 一致，測試結果才能代表正式環境的行為
+	// 版本和 compose.yaml 一致，測試結果才能代表 dev 環境的行為
 	@Bean
 	@ServiceConnection
 	PostgreSQLContainer postgresContainer() {

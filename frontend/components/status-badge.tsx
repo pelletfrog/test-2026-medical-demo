@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils"
 
 export type VitalStatus = "normal" | "warning" | "abnormal"
 
-// 不用 shadcn Badge 的 destructive：它是「橘字配淡橘底」，對比不足（見 conventions 2.5）。
+// 不用 shadcn Badge 的 destructive：它是「橘字配淡橘底」，對比不足（見 docs/conventions.md 的「配色」）。
 // 一律「底色 + 圖示 + 文字」，色弱的人只看圖示和文字也分得出狀態。
 const styles: Record<
   VitalStatus,

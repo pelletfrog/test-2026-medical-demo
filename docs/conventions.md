@@ -63,6 +63,10 @@ public class GlobalExceptionHandler {
 
 ### 1.6 測試
 
+### 1.7 設定
+
+- 只有一份 `application.yaml`，不分環境建檔；會因環境不同的值寫成 `${環境變數:預設值}`，本機用預設值，dev 用環境變數
+
 ## 2. 前端
 
 TypeScript、Next.js App Router、shadcn/ui。頁面一律在瀏覽器渲染（`"use client"`），用一般的 `next build` + `next start` 執行。
@@ -74,11 +78,11 @@ TypeScript 只用基本寫法：替 API 的請求與回應定型別，其他地�
 ### 2.2 呼叫 API
 
 - API 呼叫集中在 `lib/api/`，型別對應後端 DTO；頁面不直接寫 `fetch`
-- 一律呼叫相對路徑 `/api/...`（原因見 [architecture.md](architecture.md) §3.2）
+- 一律呼叫相對路徑 `/api/...`，由各環境的轉發送到後端（見 [devops/](devops/README.md)）：前後端同網域，不用處理 CORS
 
 ### 2.3 登入狀態
 
-- JWT 由後端放在 httpOnly cookie，前端不儲存、不讀取 token（原因見 [architecture.md](architecture.md) §4）
+- JWT 由後端放在 httpOnly cookie，前端不儲存、不讀取 token（原因見 [security.md](security.md) §3）
 - 不用 Next.js `proxy.ts`（舊名 middleware）在頁面載入前檢查登入；未登入、token 過期或無效時 API 回 401，前端導向 `/login`
   - 為什麼：前端全部在瀏覽器渲染，資料由後端驗證把關；未登入時最多先看到頁面框架，不會看到資料，換來前端少一層邏輯
 - 登出要呼叫後端清除 cookie，前端 JavaScript 刪不掉 httpOnly cookie

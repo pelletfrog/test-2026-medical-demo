@@ -22,7 +22,7 @@
 ## 5. 做法
 
 - 用 Spring Security 內建的 `oauth2-resource-server` 驗證 JWT，用 `JwtEncoder` 簽發，不另外引入第三方 JWT 套件
-- JWT 放在 cookie：`HttpOnly`、`SameSite=Strict`、`Path=/api`，正式環境加 `Secure`；`Path=/api` 讓 cookie 只送給後端 API，前端頁面的請求不帶它（前端不在頁面載入前檢查登入，見 `docs/conventions.md` §2.3）
+- JWT 放在 cookie：`HttpOnly`、`SameSite=Strict`、`Path=/api`，dev 環境（HTTPS）加 `Secure`；`Path=/api` 讓 cookie 只送給後端 API，前端頁面的請求不帶它（前端不在頁面載入前檢查登入，見[前端規範](../../../conventions.md) §2.3）
 - 登出清除 cookie 時，`Path` 要和設定時一樣是 `/api`，否則瀏覽器會當成另一個 cookie，刪不掉
 - 預設的 `BearerTokenResolver` 只讀 `Authorization` header，要改成從 cookie 讀
 - Session 設為 stateless；CSRF 靠 `SameSite=Strict` 防護，關閉 Spring 的 CSRF token

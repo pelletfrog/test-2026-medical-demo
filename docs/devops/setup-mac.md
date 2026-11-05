@@ -3,7 +3,7 @@
 > 狀態：草稿
 
 第一次在 Mac 上開發 Spring Boot：從安裝工具、建立專案，到後端第一次跑起來。
-專案建好之後，日常的啟動方式看 [README](../README.md#本機啟動)。
+專案建好之後，日常的啟動方式與常用指令看 [setup-local.md](setup-local.md)。
 
 ## 0. 會用到的工具
 
@@ -228,7 +228,7 @@ spring:
 這裡**不寫資料庫的網址、帳號、密碼**：
 
 - 本機：Docker Compose Support 會讀 `compose.yaml`，從資料庫容器的設定（也就是 `.env` 的值）自動取得連線資訊。帳號密碼只存在 `.env` 一個地方。
-- 正式環境：用環境變數 `SPRING_DATASOURCE_URL`、`SPRING_DATASOURCE_USERNAME`、`SPRING_DATASOURCE_PASSWORD` 提供，這是 Spring Boot 內建認得的名稱。
+- dev 環境（EC2）：用環境變數 `SPRING_DATASOURCE_URL`、`SPRING_DATASOURCE_USERNAME`、`SPRING_DATASOURCE_PASSWORD` 提供，這是 Spring Boot 內建認得的名稱。
 
 | 設定 | 意思 |
 |---|---|

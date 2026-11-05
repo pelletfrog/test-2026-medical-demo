@@ -6,6 +6,8 @@
 
 ## 截圖
 
+<!-- 登入、病患列表、生命徵象紀錄；功能做完再補 -->
+
 ## 功能
 
 - 登入
@@ -14,46 +16,18 @@
 
 ## 技術
 
-<!-- 一行列出，細節連到 docs/architecture.md -->
+| 項目 | 選擇 | 理由 |
+|---|---|---|
+| 後端 | Spring Boot 4.x（Java 25、Maven） | 醫療科技職缺的主流需求；3.x 已結束開源維護 |
+| 前端 | Next.js、shadcn/ui | 既有技能 |
+| 資料庫 | PostgreSQL 18 | 主流；本機與 dev 環境都跑在 Docker，不用換資料庫 |
+| 資料表變更 | Flyway | Spring Boot 專案最常用；純 SQL，只用 PostgreSQL 一種資料庫，不需要 Liquibase 的跨資料庫功能 |
+| API 文件 | springdoc-openapi（Swagger UI） | 由程式產生，不用手寫；可以直接試打 API |
+| JDK 管理 | SDKMAN!（Temurin 25） | 可切換多個 JDK 版本；25 是最新的 LTS（長期支援版） |
+| 部署 | AWS EC2 + Docker Compose | 便宜、每一步都看得到 |
+| 反向代理 | Nginx + Certbot，裝在 EC2 主機上 | 業界主流；同網域轉發 `/api`，不用處理 CORS |
 
-## 系統架構
-
-<!-- 一句話 + 連到 docs/architecture.md -->
-
-## 本機啟動
-
-### 需要的工具
-
-JDK 25、Docker、Node.js 24。第一次在 Mac 上建置環境，看 [docs/setup-mac.md](docs/setup-mac.md)。
-
-### 啟動
-
-```bash
-cp .env.example .env
-cd backend && ./mvnw spring-boot:run      # 看到 Tomcat started on port 8080 即成功
-cd frontend && npm install && npm run dev
-```
-
-### 常用指令
-
-| 指令 | 用途 |
-|---|---|
-| `./mvnw spring-boot:run` | 開發模式啟動後端 |
-| `./mvnw test` | 跑後端測試 |
-| `./mvnw clean package` | 打包成 `target/*.jar` |
-| `./mvnw dependency:tree` | 看依賴樹 |
-| `./mvnw spring-boot:run -Dspring-boot.run.arguments=--debug` | 看自動設定報告：哪些設定生效、為什麼 |
-| `docker compose up -d` | 只啟動資料庫與 pgAdmin，不跑後端 |
-
-### 用 pgAdmin 看資料庫
-
-1. 啟動後端時會一起啟動 pgAdmin；只想看資料庫時用 `docker compose up -d`
-2. 開 <http://localhost:5050>，用 `.env` 的 `PGADMIN_EMAIL`、`PGADMIN_PASSWORD` 登入
-3. 新增伺服器：主機填 `db`（容器之間用服務名稱連，不是 `localhost`），埠 `5432`，帳密與資料庫名稱看 `.env` 的 `DB_USER`、`DB_PASSWORD`、`DB_NAME`
-
-## 設計考量
-
-<!-- 為什麼這樣設計：登入與 JWT、錯誤格式、病患資料一律虛構 -->
+開發文件（環境與本機啟動、安全、開發規範、功能規格）見 [docs/](docs/README.md)。
 
 ## 之後規劃
 

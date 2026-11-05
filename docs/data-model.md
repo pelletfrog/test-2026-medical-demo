@@ -24,6 +24,16 @@
 
 ### 2.3 生命徵象
 
+<!-- 欄位名稱與型別等 vital-signs spec 確定後再寫 -->
+
+| 項目 | 英文 | 單位 |
+|---|---|---|
+| 體溫 | Body Temperature | °C |
+| 心跳 | Heart Rate | 次/分 |
+| 呼吸 | Respiratory Rate | 次/分 |
+| 收縮壓／舒張壓 | Systolic / Diastolic Blood Pressure | mmHg |
+| 血氧 | SpO₂ | % |
+
 ## 3. 不變條件
 
 - 病歷號不可重複

@@ -55,7 +55,7 @@ UI 調整（顏色、版面、文案）是使用者看得到的變更，用 `fea
    - `backend`：後端共用設定、共用類別、`pom.xml`
    - `frontend`：共用元件、layout、前端設定
    - `deploy`：`compose.yaml`、Dockerfile、Nginx
-   - `docs`：跨功能的文件（規範、架構、資料模型）
+   - `docs`：跨功能的文件（規範、安全、資料模型）
    - `claude`：`.claude/`、`CLAUDE.md`
 3. **只改 repo 根目錄的檔案，或跨多個不相關範圍**：省略 scope
 
