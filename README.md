@@ -4,7 +4,17 @@
 
 ## 截圖
 
-<!-- 登入、病患列表、生命徵象紀錄；功能做完再補 -->
+### 登入
+
+![登入](docs/images/login.png)
+
+### 病患列表
+
+![病患列表](docs/images/patients.png)
+
+### 生命徵象紀錄
+
+![生命徵象紀錄](docs/images/vital-signs.png)
 
 ## 功能
 
