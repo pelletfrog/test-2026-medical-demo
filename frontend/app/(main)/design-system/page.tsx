@@ -7,6 +7,8 @@ import { FormProvider, useForm } from "react-hook-form"
 import { z } from "zod"
 
 import { DangerButton } from "@/components/danger-button"
+import { ListPagination } from "@/components/list-pagination"
+import { SearchBox } from "@/components/search-box"
 import { applyApiError } from "@/components/form/api-error"
 import { FormAlert } from "@/components/form/form-alert"
 import { PasswordField } from "@/components/form/password-field"
@@ -336,6 +338,14 @@ export default function DesignSystemPage() {
             </div>
           </CardContent>
         </Card>
+      </Section>
+
+      {/* 搜尋與分頁 */}
+      <Section
+        title="搜尋與分頁"
+        description="按 Enter 或「搜尋」才查詢。示範資料在前端篩選，正式頁面由後端查詢與分頁。手機上搜尋按鈕只留圖示，分頁只顯示第幾頁；請縮小視窗看。"
+      >
+        <SearchPagingDemo />
       </Section>
 
       {/* 列表 */}
@@ -686,5 +696,57 @@ function FormDemo() {
         </FormProvider>
       </CardContent>
     </Card>
+  )
+}
+
+// ── 搜尋與分頁示範（資料全部虛構） ───────────────────────
+
+const demoNames = ["陳測試", "林範例", "黃虛構", "張示範", "李假名", "王樣本"]
+const demoPatients = Array.from({ length: 57 }, (_, i) => ({
+  medicalRecordNo: `A${String(i + 1).padStart(4, "0")}`,
+  name: demoNames[i % demoNames.length],
+}))
+const demoPageSize = 20
+
+function SearchPagingDemo() {
+  const [keyword, setKeyword] = useState("")
+  const [page, setPage] = useState(1)
+
+  const matched = demoPatients.filter((p) => p.medicalRecordNo.includes(keyword.toUpperCase()))
+  const totalPages = Math.ceil(matched.length / demoPageSize)
+  const rows = matched.slice((page - 1) * demoPageSize, page * demoPageSize)
+
+  return (
+    <div className="space-y-4">
+      <SearchBox
+        label="搜尋病歷號"
+        placeholder="搜尋病歷號"
+        maxLength={20}
+        onSearch={(k) => {
+          setKeyword(k)
+          setPage(1)
+        }}
+      />
+      <Card className="py-0">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="pl-4">病歷號</TableHead>
+              <TableHead>姓名</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {rows.map((p) => (
+              <TableRow key={p.medicalRecordNo}>
+                <TableCell className="pl-4 font-medium tabular-nums">{p.medicalRecordNo}</TableCell>
+                <TableCell>{p.name}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+        {rows.length === 0 && <p className="p-8 text-center text-sm text-muted-foreground">找不到符合的病患</p>}
+      </Card>
+      <ListPagination page={page} totalPages={totalPages} totalElements={matched.length} onPageChange={setPage} />
+    </div>
   )
 }
