@@ -10,7 +10,9 @@
 
 <!-- 一句話說明 -->
 
-- **AC1** Given … When … Then …
+<!-- 〔〕裡標出用哪幾種測試：〔後端〕〔前端〕〔E2E〕，見 docs/conventions.md §3 -->
+
+- **AC1 <標題>**〔後端〕：Given … When … Then …
 
 ## 3. API
 

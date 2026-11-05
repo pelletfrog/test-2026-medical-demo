@@ -10,7 +10,7 @@
 
 <!-- 一句話說明 -->
 
-- **AC1** Given … When … Then …
+- **AC1 <標題>**〔後端〕：Given … When … Then …
 
 ## 3. API
 

@@ -2,7 +2,8 @@
 
 > 狀態：草稿
 
-跨功能的安全規則寫在這裡；單一功能的實作細節寫在該功能的 spec，這裡只放連結。
+- 跨功能的安全規則寫在這裡；單一功能的實作細節寫在該功能的 spec，這裡只放連結
+- 撰寫程式參考 ISO 27002:2022 與 OWASP ASVS Level 1
 
 ## 1. 原則
 
@@ -24,4 +25,5 @@
 
 ## 4. 網路
 
-dev 環境的安全群組只開必要的連接埠，資料庫不對外，見 [devops/setup-dev.md](devops/setup-dev.md) §1；本機的連接埠只綁 `127.0.0.1`，見 [devops/setup-local.md](devops/setup-local.md) §1。
+- dev 環境的安全群組只開必要的連接埠，資料庫不對外，見 [devops/setup-dev.md](devops/setup-dev.md) §1
+- 本機的連接埠只綁 `127.0.0.1`，見 [devops/setup-local.md](devops/setup-local.md) §1

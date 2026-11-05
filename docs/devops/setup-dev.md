@@ -17,9 +17,9 @@
 | `backend` | Docker | Spring Boot |
 | `db` | Docker（`postgres:18`） | 資料庫 |
 
-- 設定檔：repo 根目錄的 `compose.dev.yaml`；Nginx 裝在主機上，不在 compose 裡。
-- 環境變數：伺服器上的 `.env`，意思與預設值看 `.env.example`。
-- 安全群組只開 22（限自己的 IP）、80、443；資料庫不對外。
+- 設定檔：repo 根目錄的 `compose.dev.yaml`；Nginx 裝在主機上，不在 compose 裡
+- 環境變數：伺服器上的 `.env`，意思與預設值看 `.env.example`
+- 安全群組只開 22（限自己的 IP）、80、443；資料庫不對外
 
 ## 2. 部署
 

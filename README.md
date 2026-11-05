@@ -20,12 +20,13 @@
 |---|---|---|
 | 後端 | Spring Boot 4.x（Java 25、Maven） | 醫療科技職缺的主流需求；3.x 已結束開源維護 |
 | 前端 | Next.js、shadcn/ui | 既有技能 |
-| 資料庫 | PostgreSQL 18 | 主流；本機與 dev 環境都跑在 Docker，不用換資料庫 |
-| 資料表變更 | Flyway | Spring Boot 專案最常用；純 SQL，只用 PostgreSQL 一種資料庫，不需要 Liquibase 的跨資料庫功能 |
+| 資料庫 | PostgreSQL 18 | 本機與 dev 環境都跑在 Docker，不用換資料庫 |
+| 資料表變更 | Flyway | 純 SQL，只用 PostgreSQL 一種資料庫，不需要 Liquibase 的跨資料庫功能 |
+| 測試 | 後端 JUnit 5 + Testcontainers、前端 Vitest、E2E Playwright | 見[開發規範](docs/conventions.md) §3 |
 | API 文件 | springdoc-openapi（Swagger UI） | 由程式產生，不用手寫；可以直接試打 API |
 | JDK 管理 | SDKMAN!（Temurin 25） | 可切換多個 JDK 版本；25 是最新的 LTS（長期支援版） |
 | 部署 | AWS EC2 + Docker Compose | 便宜、每一步都看得到 |
-| 反向代理 | Nginx + Certbot，裝在 EC2 主機上 | 業界主流；同網域轉發 `/api`，不用處理 CORS |
+| 反向代理 | Nginx + Certbot，裝在 EC2 主機上 | 同網域轉發 `/api`，不用處理 CORS |
 
 開發文件（環境與本機啟動、安全、開發規範、功能規格）見 [docs/](docs/README.md)。
 
@@ -41,5 +42,6 @@
 - **住院紀錄**：病房、床號、入出院時間；生命徵象改掛在住院紀錄底下
 - **趨勢圖**：同一位病患的數值隨時間變化
 - **欄位命名參考 HL7 FHIR**（`Patient`、`Observation`）
+- **資訊安全管理**：正式上線要在組織層級導入 ISO 27001（ISMS）；醫療資料另外參考 ISO 27799，並符合個資法與電子病歷相關法規
 
 <!-- 每項再補一句「打算怎麼做」 -->

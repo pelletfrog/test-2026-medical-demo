@@ -2,7 +2,7 @@
 
 > 狀態：草稿｜資料庫與 pgAdmin 跑在 Docker，後端與前端直接在本機執行
 
-第一次在 Mac 上安裝工具，看 [setup-mac.md](setup-mac.md)。
+- 第一次在 Mac 上安裝工具，看 [setup-mac.md](setup-mac.md)
 
 ## 1. 架構
 
@@ -20,10 +20,10 @@
 | 後端 | 本機 | Spring Boot |
 | 前端 | 本機 | Next.js |
 
-- 前端呼叫的 `/api/*` 由 Next.js rewrites 轉到後端的 8080（只在開發模式啟用；登入功能時加上）。
-- 設定檔：repo 根目錄的 `compose.yaml`；帳密在 `.env`（不進 git，範本是 `.env.example`）。
-- 連接埠只綁 `127.0.0.1`，同網路的其他電腦連不到。
-- 資料庫與 pgAdmin 的資料放在 named volume，刪掉容器資料仍在。
+- 前端呼叫的 `/api/*` 由 Next.js rewrites 轉到後端的 8080（只在開發模式啟用；登入功能時加上）
+- 設定檔：repo 根目錄的 `compose.yaml`；帳密在 `.env`（不進 git，範本是 `.env.example`）
+- 連接埠只綁 `127.0.0.1`，同網路的其他電腦連不到
+- 資料庫與 pgAdmin 的資料放在 named volume，刪掉容器資料仍在
 
 ## 2. 啟動
 
@@ -33,7 +33,7 @@ cd backend && ./mvnw spring-boot:run          # 看到 Tomcat started on port 80
 cd frontend && npm install && npm run dev
 ```
 
-後端啟動時，Spring Boot 的 Docker Compose Support 會自動啟動 `compose.yaml` 的服務；後端停止時不關資料庫，重啟後端不用等資料庫。
+- 後端啟動時，Spring Boot 的 Docker Compose Support 會自動啟動 `compose.yaml` 的服務；後端停止時不關資料庫，重啟後端不用等資料庫
 
 ## 3. 常用操作
 
@@ -58,4 +58,4 @@ cd frontend && npm install && npm run dev
 
 ## 4. 常見問題
 
-安裝與第一次啟動的問題見 [setup-mac.md](setup-mac.md) §11。
+- 安裝與第一次啟動的問題見 [setup-mac.md](setup-mac.md) §11
