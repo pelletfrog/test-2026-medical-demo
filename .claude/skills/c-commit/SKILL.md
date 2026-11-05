@@ -50,7 +50,7 @@ unstaged 為空時省略提問，直接進入步驟 2。收到回應後執行對
   - 建置產物與套件：`backend/target/`、`frontend/node_modules/`、`frontend/.next/`
 - **內容**：新增的行裡是否有
   - 密碼、token、JWT secret、金鑰的實際值（例如 `password=` 後面接的不是環境變數或佔位字串、`-----BEGIN ... PRIVATE KEY-----`）
-  - AWS access key（`AKIA` 開頭的 20 碼字串）、EC2 的實際 IP 或主機名稱
+  - AWS access key（`AKIA` 開頭的 20 碼字串）、伺服器的實際 IP 或主機名稱
   - 含帳密的連線字串（例如 `jdbc:postgresql://` 後面接上實際的帳號密碼）
   - 看起來像真實個人資料的病患資料：格式正確的身分證字號、真實的手機號碼或 email、真實醫院名稱搭配的病歷號。病患資料一律虛構，種子資料與測試資料也一樣
 
@@ -63,7 +63,7 @@ unstaged 為空時省略提問，直接進入步驟 2。收到回應後執行對
 - **後端**（`backend/` 底下的 `.java`、`pom.xml`、`src/main/resources/` 設定檔）：在 `backend/` 執行 `./mvnw test`
 - **前端**（`frontend/` 底下的 `.ts`、`.tsx`、`.js`、`.mjs` 或設定檔）：執行 `npm --prefix frontend run lint`；`frontend/package.json` 有 `typecheck` script 時也執行
 
-任一失敗時顯示錯誤摘要，**停下來等待使用者決定**：修正後再繼續，或照常 commit。測試若因資料庫沒啟動而失敗，提醒使用者先 `docker compose up -d`。
+任一失敗時顯示錯誤摘要，**停下來等待使用者決定**：修正後再繼續，或照常 commit。測試若因 Docker 連不上而失敗，提醒使用者打開 Docker Desktop：測試由 Testcontainers 另開臨時資料庫。
 
 ## 4. 產生 commit 訊息
 
