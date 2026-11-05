@@ -17,8 +17,8 @@
 
 ## 開發流程
 
-1. **spec**：每個功能先寫 REQ 與 AC，用 `/c-docs-check <spec>` 檢查後，和使用者確認才開發。
-2. **開發**：一個功能前後端一起做；先依 AC 寫測試，再寫程式（規則見 `docs/conventions.md` §3）。
+1. **spec**：每個功能先寫 REQ 與 AC，用 `/c-docs-check <spec>` 檢查，和使用者確認後，狀態改成定案（見 `docs/specs/README.md` §2）。
+2. **開發**：用 `/c-dev <spec>`；一個功能前後端一起做；先依 AC 寫測試，再寫程式（測試規則見 `docs/conventions.md` §3）。
 3. **commit**：功能完成、測試通過後，用 `/c-commit`。
 
 ## 工作規則
