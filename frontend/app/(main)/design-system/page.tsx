@@ -241,7 +241,8 @@ export default function DesignSystemPage() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-6xl space-y-12 px-4 py-8 sm:px-6">
+    // 不用 <main>：側邊欄版型的 SidebarInset 已經是 <main>，一頁只能有一個
+    <div className="mx-auto w-full max-w-6xl space-y-12 px-4 py-8 sm:px-6">
       <header className="space-y-2">
         <h1 className="text-2xl font-semibold">Design System</h1>
         <p className="text-sm text-muted-foreground">
@@ -526,7 +527,7 @@ export default function DesignSystemPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </main>
+    </div>
   )
 }
 
