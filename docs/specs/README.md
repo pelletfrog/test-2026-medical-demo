@@ -6,13 +6,14 @@
 
 | 功能 | 資料夾 | 代碼 | 狀態 |
 |---|---|---|---|
-| 登入 | [auth/login](auth/login/spec.md) | AUT | 草稿 |
+| 登入 | [auth/login](auth/login/spec.md) | AUT | 定案 |
 | 病患 | [patients](patients/spec.md) | PAT | 草稿 |
 | 生命徵象 | [vital-signs](vital-signs/spec.md) | VIT | 草稿 |
 
 ## 2. 新增功能
 
 - 複製 [`_template/spec.md`](_template/spec.md) 到 `specs/<功能>/spec.md`（同一領域有多個功能時再分一層，例如 `auth/login`），並在 §1 功能清單加一列
+- 需求用到的資料表，和 REQ、AC 一起寫進 [data-model.md](../data-model.md)
 - 使用者確認 REQ 與 AC 後，spec 開頭與 §1 功能清單的狀態改成「定案」；`/c-dev` 只開發定案的 spec
 - 定案後修改 REQ 或 AC，狀態維持定案，用 `/c-dev` 讓測試與程式跟上
 

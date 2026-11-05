@@ -24,7 +24,7 @@ disable-model-invocation: true
 - 讀相關文件：
   - `docs/README.md` §2 以誰為準
   - `docs/conventions.md`：前後端規範與 §3 測試規則
-  - `docs/data-model.md`：對應的資料表與不變條件
+  - `docs/data-model.md`：對應的資料表、欄位約束與不變條件
   - `docs/security.md`
   - 要寫前端時：`frontend/AGENTS.md`
 - 比對 spec 與現有的測試、程式；測試名稱是 `<REQ 編號> <AC 編號> <AC 標題>`，用編號搜尋：
@@ -94,7 +94,7 @@ disable-model-invocation: true
   - 前端：`npm --prefix frontend run lint`；有裝 Vitest、Playwright 時也跑單元測試與 E2E
 - 文件與程式，逐項比對，自己做：
   - 每條 AC 標記的每種測試都有，位置照 `docs/conventions.md` §3.1 的表；用 REQ 與 AC 編號搜尋測試名稱
-  - `docs/data-model.md` 的每條不變條件都有測試
+  - `docs/data-model.md` 的欄位約束與不變條件都有測試
   - Entity、migration 和 `docs/data-model.md` 一致（欄位、約束）
   - spec 的 API 清單、畫面和程式一致
   - 沒有違反 `docs/conventions.md`
@@ -102,9 +102,9 @@ disable-model-invocation: true
 - 程式的行為與 AC、不變條件一致，依第 2 步計畫的方式：
   - 自己檢查：回報註明「由開發者自己檢查」
   - 交給 subagent：用新開的 subagent，不用 fork（fork 會帶著目前的對話）
-    - 給：spec 路徑、`docs/data-model.md` 相關的不變條件、這次的 diff（審查範圍）；需要時可以自己讀 `docs/` 其他文件與整個專案的程式
+    - 給：spec 路徑、`docs/data-model.md` 相關的欄位約束與不變條件、這次的 diff（審查範圍）；需要時可以自己讀 `docs/` 其他文件與整個專案的程式
     - 不給：第 2 步的計畫（AC 對應哪些程式、影響其他功能）、這次的說明與檢查結果（例如「AC2 已完成」「測試都通過」）；避免它被帶著走
-    - 請它逐條 AC 與不變條件檢查：程式的行為和文件是否一致、測試程式是否真的驗證到
+    - 請它逐條 AC、欄位約束與不變條件檢查：程式的行為和文件是否一致、測試程式是否真的驗證到
     - diff 改到共用的程式、資料表或 API 時，請它自己找出用到的其他 spec，同樣檢查那些 AC
     - 只檢查、不修改；每條都回報「符合／不符合／無法判斷」，不符合與無法判斷的附原因與檔案:行號
     - 回報的差異先自己讀程式確認，排除誤報再列給使用者
