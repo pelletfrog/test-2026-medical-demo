@@ -24,6 +24,7 @@ io.github.pelletfrog.vitals
 ├── common/
 │   ├── BaseEntity.java          ← 共用欄位（§1.7）
 │   ├── TimeZones.java           ← Asia/Taipei 常數與 API 時間格式（§1.8）
+│   ├── PageResponse.java        ← 列表的分頁回應（§1.9）
 │   ├── GlobalExceptionHandler.java
 │   └── NotFoundException.java
 └── config/
@@ -112,6 +113,12 @@ io.github.pelletfrog.vitals
 - API 的時間一律是 `yyyy-MM-dd HH:mm`（`Asia/Taipei`），日期是 `yyyy-MM-dd`；時間由 Jackson 全域轉換，輸入輸出同格式：前端直接顯示，不處理時區
 - 判斷「今天」用注入的 `Clock`（`Asia/Taipei`），不直接呼叫 `LocalDate.now()`：`now()` 用的是伺服器時區；測試也能固定時間
 
+### 1.9 分頁
+
+- 列表 API 用 `page`、`size` 參數，頁碼從 1 開始：和畫面、網址上的頁碼相同，前端不用換算
+  - 設定 `spring.data.web.pageable.one-indexed-parameters: true`
+- 回應用 `common/PageResponse`：`content`、`page`（從 1 開始）、`size`、`totalElements`、`totalPages`；Spring 內建的分頁回應頁碼從 0 開始，和參數不一致
+
 ## 2. 前端
 
 - 頁面一律在瀏覽器渲染（`"use client"`）
@@ -168,6 +175,14 @@ io.github.pelletfrog.vitals
   - 必填：「請輸入〇〇」；下拉選單「請選擇〇〇」
   - 長度：「〇〇最多 N 個字」
   - 範圍：「〇〇需介於 a～b」
+  - 格式：「〇〇只能是△△」，例如「病歷號只能是英文字母與數字」
+
+### 2.6 列表
+
+- 搜尋用 `components/search-box.tsx` 的 `SearchBox`，分頁用 `components/list-pagination.tsx` 的 `ListPagination`；樣子看 `/design-system` 頁
+- 按 Enter 或「搜尋」才查詢，不邊打字邊查
+- 搜尋條件與頁碼放在網址的查詢參數（例如 `?q=A00&page=2`）：重新整理、按上一頁時停在原本的位置
+- 重新搜尋時回到第 1 頁
 
 ## 3. 測試
 

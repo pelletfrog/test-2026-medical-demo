@@ -18,7 +18,6 @@ erDiagram
         bigint id PK
         string medicalRecordNo UK
         string name
-        date birthDate
     }
     users ||--o{ patients : "建立、修改、刪除"
 ```
@@ -49,9 +48,8 @@ erDiagram
 
 | 欄位 | 說明 |
 |---|---|
-| `medicalRecordNo` | 病歷號，唯一，含已刪除的資料 |
-| `name` | 姓名 |
-| `birthDate` | 生日 |
+| `medicalRecordNo` | 病歷號，英文字母與數字，最多 20 個字，一律存成大寫；唯一，含已刪除的資料 |
+| `name` | 姓名，最多 50 個字 |
 
 ### 2.3 生命徵象（`vital_signs`）
 
