@@ -1,0 +1,53 @@
+# dev 環境（EC2）用：資料庫、後端、前端都跑在 Docker，主機上的 Nginx 轉發，見 docs/devops/setup-dev.md
+# image 在 Mac 上建好再傳上來，伺服器上不建置，所以只寫 image 不寫 build
+# 每個容器都設記憶體上限：超過時只有該容器被砍掉再自動重啟，不會拖垮主機與其他程式；
+# t4g.medium 4 GB，三個容器共 2.5 GB，其餘留給主機。CPU 不限制：搶 CPU 只會變慢
+services:
+  db:
+    image: postgres:18
+    restart: unless-stopped
+    mem_limit: 1g
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      # 18 版起資料放在 /var/lib/postgresql/<主版本>/docker，掛載上一層，和 compose.yaml 相同
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    image: vitals-backend:${VERSION}
+    restart: unless-stopped
+    mem_limit: 1g
+    # 後端直接用 .env 的 ADMIN_*、JWT_*、COOKIE_SECURE
+    env_file: .env
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${DB_NAME}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      # JVM 預設 heap 只用上限的 25%；其餘 30% 留給 metaspace、執行緒等 heap 以外的記憶體
+      JAVA_TOOL_OPTIONS: -XX:MaxRAMPercentage=70
+      # 認得 Nginx 傳來的 X-Forwarded-Proto：Swagger 的 API 文件才會寫 https，不然 Try it out 被瀏覽器擋下
+      SERVER_FORWARD_HEADERS_STRATEGY: native
+    ports:
+      # 只給主機上的 Nginx 轉發，不直接對外
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      # 資料庫還沒準備好時 Flyway 會連線失敗，後端直接啟動失敗
+      db:
+        condition: service_healthy
+
+  frontend:
+    image: vitals-frontend:${VERSION}
+    restart: unless-stopped
+    mem_limit: 512m
+    ports:
+      - "127.0.0.1:3000:3000"
+
+volumes:
+  pgdata:

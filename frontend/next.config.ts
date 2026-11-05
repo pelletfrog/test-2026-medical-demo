@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // dev 環境用 Docker 部署，只放執行需要的檔案，image 比較小，見 docs/devops/setup-dev.md
+  output: "standalone",
   /* config options here */
   cacheComponents: true,
   partialPrefetching: true,
