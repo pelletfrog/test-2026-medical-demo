@@ -30,6 +30,8 @@ class PatientListTest {
 	@BeforeEach
 	void setUp() throws Exception {
 		// 臨時資料庫在測試類別之間共用，每個測試從沒有病患開始
+		// 生命徵象參照病患，要先刪掉才能清空病患
+		jdbc.update("DELETE FROM vital_signs");
 		jdbc.update("DELETE FROM patients");
 		token = AuthTestSupport.login(mockMvc);
 	}

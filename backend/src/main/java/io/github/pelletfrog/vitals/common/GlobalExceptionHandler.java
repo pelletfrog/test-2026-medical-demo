@@ -34,16 +34,18 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
 	static final String FIELD_ERRORS_SUMMARY = "請修正標示的欄位";
 
-	// 同一個欄位違反多條規則時，依這個順序只顯示一則：先填、再改長度、最後改格式；
+	// 同一個欄位違反多條規則時，依這個順序只顯示一則：先填、再改長度或範圍、最後改格式；
 	// Spring 回報欄位錯誤的順序不固定，不排序的話同樣的輸入每次訊息可能不同
-	private static final List<String> FIELD_ERROR_PRIORITY = List.of("NotBlank", "NotNull", "Size", "Pattern");
+	private static final List<String> FIELD_ERROR_PRIORITY = List.of(
+			"NotBlank", "NotNull", "Size", "DecimalMin", "DecimalMax", "Digits", "Pattern", "PastOrPresent");
 
 	private record FieldConflict(String field, String message) {
 	}
 
 	// 唯一約束名稱 → 欄位與訊息；約束命名見 conventions §1.5
 	private static final Map<String, FieldConflict> UNIQUE_CONSTRAINTS = Map.of(
-			"uk_patients_medical_record_no", new FieldConflict("medicalRecordNo", "病歷號已存在"));
+			"uk_patients_medical_record_no", new FieldConflict("medicalRecordNo", "病歷號已存在"),
+			"uk_vital_signs_patient_id_measured_at", new FieldConflict("measuredAt", "這個時間已經有紀錄"));
 
 	@Override
 	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
@@ -91,6 +93,18 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 		ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, FIELD_ERRORS_SUMMARY);
 		problem.setProperty("errors", Map.of(conflict.field(), conflict.message()));
 		return problem;
+	}
+
+	@ExceptionHandler(FieldErrorException.class)
+	ProblemDetail fieldError(FieldErrorException ex) {
+		ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, FIELD_ERRORS_SUMMARY);
+		problem.setProperty("errors", Map.of(ex.getField(), ex.getMessage()));
+		return problem;
+	}
+
+	@ExceptionHandler(NotFoundException.class)
+	ProblemDetail notFound(NotFoundException ex) {
+		return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
 	}
 
 	@ExceptionHandler(InvalidCredentialsException.class)

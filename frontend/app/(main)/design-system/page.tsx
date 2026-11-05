@@ -2,45 +2,25 @@
 
 import { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { CircleAlertIcon, PencilIcon, PlusIcon, Trash2Icon } from "lucide-react"
+import { PlusIcon } from "lucide-react"
 import { FormProvider, useForm } from "react-hook-form"
 import { z } from "zod"
 
 import { DangerButton } from "@/components/danger-button"
 import { ListPagination } from "@/components/list-pagination"
 import { SearchBox } from "@/components/search-box"
+import { VitalSignDialog } from "@/components/vital-sign-dialog"
+import { VitalSignList } from "@/components/vital-sign-list"
 import { applyApiError } from "@/components/form/api-error"
+import { ComboboxField } from "@/components/form/combobox-field"
+import { DateTimeField } from "@/components/form/date-time-field"
 import { FormAlert } from "@/components/form/form-alert"
+import { NumberField } from "@/components/form/number-field"
 import { PasswordField } from "@/components/form/password-field"
 import { SubmitButton } from "@/components/form/submit-button"
-import { TextField as SharedTextField } from "@/components/form/text-field"
-import { StatusBadge, type VitalStatus } from "@/components/status-badge"
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+import { TextField } from "@/components/form/text-field"
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
+import { Card, CardContent } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import {
   Select,
@@ -49,7 +29,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Separator } from "@/components/ui/separator"
 import {
   Table,
   TableBody,
@@ -60,6 +39,8 @@ import {
 } from "@/components/ui/table"
 import { Textarea } from "@/components/ui/textarea"
 import { ApiError } from "@/lib/api/client"
+import type { PatientOption, VitalSign } from "@/lib/api/vital-signs"
+import { patientLabel, toVitalSignRequest, type VitalSignFormValues } from "@/lib/vital-sign-form"
 
 // ── 色票 ─────────────────────────────────────────────
 
@@ -82,162 +63,70 @@ const lines = [
 
 // ── 生命徵象（示範資料，全部虛構） ──────────────────────
 
-type Site = "oral" | "ear" | "axillary"
-
-type VitalRecord = {
-  id: number
-  bed: string
-  patient: string
-  measuredAt: string
-  site: Site
-  temperature: number
-  pulse: number
-  respiration: number
-  systolic: number
-  diastolic: number
-  spo2: number
-  note: string
-}
-
-const siteItems: { value: Site; label: string }[] = [
+// 給「還沒有共用元件的欄位」的下拉選單示範用
+const siteItems = [
   { value: "oral", label: "口溫" },
   { value: "ear", label: "耳溫" },
   { value: "axillary", label: "腋溫" },
 ]
 
-const initialRecords: VitalRecord[] = [
-  { id: 1, bed: "A-101", patient: "陳測試", measuredAt: "2026-11-04T08:00", site: "ear", temperature: 36.8, pulse: 78, respiration: 16, systolic: 122, diastolic: 78, spo2: 98, note: "" },
-  { id: 2, bed: "A-102", patient: "林範例", measuredAt: "2026-11-04T08:15", site: "oral", temperature: 37.7, pulse: 104, respiration: 20, systolic: 145, diastolic: 92, spo2: 95, note: "主訴頭暈" },
-  { id: 3, bed: "A-103", patient: "黃虛構", measuredAt: "2026-11-04T08:30", site: "axillary", temperature: 38.6, pulse: 126, respiration: 24, systolic: 88, diastolic: 56, spo2: 91, note: "已通知值班醫師" },
+const demoPatientOptions: PatientOption[] = Array.from({ length: 30 }, (_, i) => ({
+  id: i + 1,
+  medicalRecordNo: `A${String(i + 1).padStart(3, "0")}`,
+  name: ["陳測試", "林範例", "黃虛構", "張示範", "李假名"][i % 5],
+}))
+
+// 模擬後端的選擇病患 API：病歷號或姓名部分符合，最多 20 位
+async function searchDemoPatients(keyword: string) {
+  const k = keyword.toUpperCase()
+  const matched = demoPatientOptions.filter((p) => p.medicalRecordNo.includes(k) || p.name.includes(keyword))
+  return { items: matched.slice(0, 20), hasMore: matched.length > 20 }
+}
+
+const initialRecords: VitalSign[] = [
+  { id: 3, patientId: 3, medicalRecordNo: "A003", name: "黃虛構", measuredAt: "2026-11-04 08:30", bodyTemperature: 38.6, heartRate: 126, respiratoryRate: 24, systolicPressure: 88, diastolicPressure: 56, oxygenSaturation: 91 },
+  { id: 2, patientId: 2, medicalRecordNo: "A002", name: "林範例", measuredAt: "2026-11-04 08:15", bodyTemperature: 37.7, heartRate: 104, respiratoryRate: 20, systolicPressure: 145, diastolicPressure: 92, oxygenSaturation: 95 },
+  { id: 1, patientId: 1, medicalRecordNo: "A001", name: "陳測試", measuredAt: "2026-11-04 08:00", bodyTemperature: 36.8, heartRate: 78, respiratoryRate: 16, systolicPressure: 122, diastolicPressure: 78, oxygenSaturation: 98 },
 ]
-
-// 示範用的成人參考範圍，正式規則待 vital-signs spec 定義
-function judge(r: Pick<VitalRecord, "temperature" | "pulse" | "respiration" | "systolic" | "spo2">) {
-  const t: VitalStatus = r.temperature >= 38 || r.temperature < 35.5 ? "abnormal" : r.temperature > 37.5 || r.temperature < 36 ? "warning" : "normal"
-  const p: VitalStatus = r.pulse > 120 || r.pulse < 50 ? "abnormal" : r.pulse > 100 || r.pulse < 60 ? "warning" : "normal"
-  const rr: VitalStatus = r.respiration > 24 || r.respiration < 10 ? "abnormal" : r.respiration > 20 || r.respiration < 12 ? "warning" : "normal"
-  const bp: VitalStatus = r.systolic >= 160 || r.systolic < 90 ? "abnormal" : r.systolic >= 140 ? "warning" : "normal"
-  const o: VitalStatus = r.spo2 < 92 ? "abnormal" : r.spo2 < 95 ? "warning" : "normal"
-  const all = [t, p, rr, bp, o]
-  const overall: VitalStatus = all.includes("abnormal") ? "abnormal" : all.includes("warning") ? "warning" : "normal"
-  return { temperature: t, pulse: p, respiration: rr, bp, spo2: o, overall }
-}
-
-function formatTime(iso: string) {
-  return iso.replace("T", " ")
-}
-
-// ── 表單 ─────────────────────────────────────────────
-
-type FormValues = Record<
-  "patient" | "bed" | "measuredAt" | "temperature" | "pulse" | "respiration" | "systolic" | "diastolic" | "spo2" | "note",
-  string
-> & { site: Site }
-
-const numericFields = [
-  { name: "temperature", label: "體溫", unit: "°C", min: 30, max: 45, step: "0.1" },
-  { name: "pulse", label: "脈搏", unit: "次/分", min: 20, max: 250, step: "1" },
-  { name: "respiration", label: "呼吸", unit: "次/分", min: 4, max: 60, step: "1" },
-  { name: "spo2", label: "血氧", unit: "%", min: 50, max: 100, step: "1" },
-  { name: "systolic", label: "收縮壓", unit: "mmHg", min: 50, max: 260, step: "1" },
-  { name: "diastolic", label: "舒張壓", unit: "mmHg", min: 30, max: 160, step: "1" },
-] as const
-
-const emptyForm: FormValues = {
-  patient: "", bed: "", measuredAt: "2026-11-04T09:00", site: "ear",
-  temperature: "", pulse: "", respiration: "", systolic: "", diastolic: "", spo2: "", note: "",
-}
-
-function toForm(r: VitalRecord): FormValues {
-  return {
-    patient: r.patient, bed: r.bed, measuredAt: r.measuredAt, site: r.site,
-    temperature: String(r.temperature), pulse: String(r.pulse), respiration: String(r.respiration),
-    systolic: String(r.systolic), diastolic: String(r.diastolic), spo2: String(r.spo2), note: r.note,
-  }
-}
-
-function validate(v: FormValues) {
-  const errors: Partial<Record<keyof FormValues, string>> = {}
-  if (!v.patient.trim()) errors.patient = "請輸入病患姓名"
-  if (!v.bed.trim()) errors.bed = "請輸入床號"
-  for (const f of numericFields) {
-    const n = Number(v[f.name])
-    if (v[f.name] === "") errors[f.name] = `請輸入${f.label}`
-    else if (Number.isNaN(n) || n < f.min || n > f.max) errors[f.name] = `${f.label}須介於 ${f.min}～${f.max} ${f.unit}`
-  }
-  if (!errors.systolic && !errors.diastolic && Number(v.systolic) <= Number(v.diastolic)) {
-    errors.systolic = "收縮壓須高於舒張壓"
-  }
-  return errors
-}
-
-function FieldError({ id, message }: { id: string; message?: string }) {
-  if (!message) return null
-  // 錯誤訊息不用橘字（對比 2.55:1），改用主文字色加圖示
-  return (
-    <p id={id} className="flex items-center gap-1 text-xs text-foreground">
-      <CircleAlertIcon className="size-3.5 shrink-0" aria-hidden />
-      {message}
-    </p>
-  )
-}
 
 // ── 頁面 ─────────────────────────────────────────────
 
 export default function DesignSystemPage() {
   const [records, setRecords] = useState(initialRecords)
-  const [formOpen, setFormOpen] = useState(false)
-  const [editingId, setEditingId] = useState<number | null>(null)
-  const [form, setForm] = useState<FormValues>(emptyForm)
-  const [errors, setErrors] = useState<ReturnType<typeof validate>>({})
-  const [confirmAbnormalOpen, setConfirmAbnormalOpen] = useState(false)
-  const [deleteTarget, setDeleteTarget] = useState<VitalRecord | null>(null)
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [editing, setEditing] = useState<VitalSign | null>(null)
 
   function openCreate() {
-    setEditingId(null)
-    setForm(emptyForm)
-    setErrors({})
-    setFormOpen(true)
+    setEditing(null)
+    setDialogOpen(true)
   }
 
-  function openEdit(r: VitalRecord) {
-    setEditingId(r.id)
-    setForm(toForm(r))
-    setErrors({})
-    setFormOpen(true)
+  function openEdit(record: VitalSign) {
+    setEditing(record)
+    setDialogOpen(true)
   }
 
-  function set<K extends keyof FormValues>(key: K, value: FormValues[K]) {
-    setForm((f) => ({ ...f, [key]: value }))
-  }
-
-  function toRecord(v: FormValues, id: number): VitalRecord {
-    return {
-      id, bed: v.bed.trim(), patient: v.patient.trim(), measuredAt: v.measuredAt, site: v.site,
-      temperature: Number(v.temperature), pulse: Number(v.pulse), respiration: Number(v.respiration),
-      systolic: Number(v.systolic), diastolic: Number(v.diastolic), spo2: Number(v.spo2), note: v.note.trim(),
+  // 模擬後端：同一位病患同一個時間已有紀錄時，回傳和後端相同格式的錯誤
+  async function save(values: VitalSignFormValues) {
+    await new Promise((resolve) => setTimeout(resolve, 500))
+    const patient = values.patient!
+    const request = toVitalSignRequest(values)
+    const duplicate = records.some(
+      (r) => r.patientId === patient.id && r.measuredAt === request.measuredAt && r.id !== editing?.id
+    )
+    if (duplicate) {
+      throw new ApiError(409, "請修正標示的欄位", { measuredAt: "這個時間已經有紀錄" })
     }
-  }
-
-  function save() {
-    const id = editingId ?? Math.max(0, ...records.map((r) => r.id)) + 1
-    const record = toRecord(form, id)
-    setRecords((rs) => (editingId ? rs.map((r) => (r.id === id ? record : r)) : [record, ...rs]))
-    setConfirmAbnormalOpen(false)
-    setFormOpen(false)
-  }
-
-  function submit(e: React.FormEvent) {
-    e.preventDefault()
-    const found = validate(form)
-    setErrors(found)
-    if (Object.keys(found).length > 0) return
-    // 異常值多半是量錯或病況變化，存檔前讓護理師再確認一次
-    if (judge(toRecord(form, 0)).overall === "abnormal") {
-      setConfirmAbnormalOpen(true)
-      return
+    const record: VitalSign = {
+      id: editing?.id ?? Math.max(0, ...records.map((r) => r.id)) + 1,
+      patientId: patient.id,
+      medicalRecordNo: patient.medicalRecordNo,
+      name: patient.name,
+      ...request,
     }
-    save()
+    setRecords((rs) =>
+      [...rs.filter((r) => r.id !== record.id), record].sort((a, b) => b.measuredAt.localeCompare(a.measuredAt))
+    )
   }
 
   return (
@@ -304,15 +193,6 @@ export default function DesignSystemPage() {
         </Card>
       </Section>
 
-      {/* 狀態 */}
-      <Section title="狀態徽章" description="底色 + 圖示 + 文字，色弱也分得出來。">
-        <div className="flex flex-wrap gap-3">
-          <StatusBadge status="normal" />
-          <StatusBadge status="warning" />
-          <StatusBadge status="abnormal" />
-        </div>
-      </Section>
-
       {/* 表單元件 */}
       <Section
         title="表單元件"
@@ -351,182 +231,27 @@ export default function DesignSystemPage() {
 
       {/* 列表 */}
       <Section
-        title="列表：生命徵象紀錄"
-        description="寬螢幕用表格；手機改成卡片，避免左右捲動。"
+        title="列表與表單：生命徵象紀錄"
+        description="寬螢幕用表格；手機改成卡片，避免左右捲動。新增時病患用可搜尋的下拉選單；編輯時病患不能更換。示範病患有 30 位，輸入「A」可以看到超過 20 位的提示。"
         action={<Button onClick={openCreate}><PlusIcon data-icon="inline-start" />新增紀錄</Button>}
       >
-        {/* 寬螢幕：表格 */}
-        <Card className="hidden py-0 md:block">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="pl-4">床號</TableHead>
-                <TableHead>病患</TableHead>
-                <TableHead>測量時間</TableHead>
-                <TableHead className="text-right">體溫</TableHead>
-                <TableHead className="text-right">脈搏</TableHead>
-                <TableHead className="text-right">呼吸</TableHead>
-                <TableHead className="text-right">血壓</TableHead>
-                <TableHead className="text-right">血氧</TableHead>
-                <TableHead>狀態</TableHead>
-                <TableHead className="pr-4 text-right">操作</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {records.map((r) => (
-                <TableRow key={r.id}>
-                  <TableCell className="pl-4 font-medium">{r.bed}</TableCell>
-                  <TableCell>{r.patient}</TableCell>
-                  <TableCell className="text-muted-foreground tabular-nums">{formatTime(r.measuredAt)}</TableCell>
-                  <TableCell className="text-right tabular-nums">{r.temperature.toFixed(1)}</TableCell>
-                  <TableCell className="text-right tabular-nums">{r.pulse}</TableCell>
-                  <TableCell className="text-right tabular-nums">{r.respiration}</TableCell>
-                  <TableCell className="text-right tabular-nums">{r.systolic}/{r.diastolic}</TableCell>
-                  <TableCell className="text-right tabular-nums">{r.spo2}%</TableCell>
-                  <TableCell><StatusBadge status={judge(r).overall} /></TableCell>
-                  <TableCell className="pr-4">
-                    <RowActions record={r} onEdit={openEdit} onDelete={setDeleteTarget} />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-          {records.length === 0 && <EmptyState />}
-        </Card>
-
-        {/* 手機：卡片 */}
-        <div className="space-y-3 md:hidden">
-          {records.map((r) => {
-            const s = judge(r)
-            return (
-              <Card key={r.id} size="sm">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    {r.bed}　{r.patient}
-                  </CardTitle>
-                  <CardDescription className="tabular-nums">{formatTime(r.measuredAt)}</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <StatusBadge status={s.overall} />
-                  <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                    <Vital label="體溫" value={`${r.temperature.toFixed(1)} °C`} />
-                    <Vital label="脈搏" value={`${r.pulse} 次/分`} />
-                    <Vital label="呼吸" value={`${r.respiration} 次/分`} />
-                    <Vital label="血氧" value={`${r.spo2} %`} />
-                    <Vital label="血壓" value={`${r.systolic}/${r.diastolic} mmHg`} />
-                  </dl>
-                  <Separator />
-                  <RowActions record={r} onEdit={openEdit} onDelete={setDeleteTarget} />
-                </CardContent>
-              </Card>
-            )
-          })}
-          {records.length === 0 && <Card><EmptyState /></Card>}
-        </div>
+        <VitalSignList records={records} emptyText="目前沒有紀錄" onEdit={openEdit} />
       </Section>
 
       {/* 待決定 */}
       <Section title="待決定" description="這頁看完後要一起討論的地方。">
         <ul className="list-disc space-y-1 pl-5 text-sm">
           <li>輸入框錯誤狀態的橘色外框（<code className="font-mono">aria-invalid:border-destructive</code>）對比 2.55:1，未達 3:1。</li>
-          <li>判斷正常／注意／異常的閾值是示範用，正式規則要寫進 vital-signs spec。</li>
         </ul>
       </Section>
 
-      {/* 新增／編輯 */}
-      <Dialog open={formOpen} onOpenChange={setFormOpen}>
-        <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-xl">
-          <form onSubmit={submit} noValidate className="grid gap-4">
-            <DialogHeader>
-              <DialogTitle>{editingId ? "編輯紀錄" : "新增紀錄"}</DialogTitle>
-              <DialogDescription>數值超出參考範圍時，儲存前會再確認一次。</DialogDescription>
-            </DialogHeader>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <TextField id="bed" label="床號" value={form.bed} error={errors.bed} onChange={(v) => set("bed", v)} />
-              <TextField id="patient" label="病患" value={form.patient} error={errors.patient} onChange={(v) => set("patient", v)} />
-              <div className="space-y-2">
-                <Label htmlFor="measuredAt">測量時間</Label>
-                <Input id="measuredAt" type="datetime-local" value={form.measuredAt} onChange={(e) => set("measuredAt", e.target.value)} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="site">體溫測量部位</Label>
-                <Select items={siteItems} value={form.site} onValueChange={(v) => v && set("site", v as Site)}>
-                  <SelectTrigger id="site" className="w-full"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {siteItems.map((i) => <SelectItem key={i.value} value={i.value}>{i.label}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <Separator />
-
-            <div className="grid grid-cols-2 gap-4">
-              {numericFields.map((f) => (
-                <TextField
-                  key={f.name}
-                  id={f.name}
-                  label={`${f.label}（${f.unit}）`}
-                  value={form[f.name]}
-                  error={errors[f.name]}
-                  inputMode="decimal"
-                  step={f.step}
-                  onChange={(v) => set(f.name, v)}
-                />
-              ))}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="note">備註</Label>
-              <Textarea id="note" value={form.note} onChange={(e) => set("note", e.target.value)} />
-            </div>
-
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setFormOpen(false)}>取消</Button>
-              <Button type="submit">儲存</Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* 異常值確認 */}
-      <AlertDialog open={confirmAbnormalOpen} onOpenChange={setConfirmAbnormalOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>數值超出參考範圍</AlertDialogTitle>
-            <AlertDialogDescription>請確認數值沒有輸入錯誤，並視需要通知醫師。確定要儲存嗎？</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AbnormalList form={form} />
-          <AlertDialogFooter>
-            <AlertDialogCancel>返回修改</AlertDialogCancel>
-            <Button onClick={save}>確認儲存</Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* 刪除確認 */}
-      <AlertDialog open={deleteTarget !== null} onOpenChange={(open) => !open && setDeleteTarget(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>刪除這筆紀錄？</AlertDialogTitle>
-            <AlertDialogDescription>
-              {deleteTarget && `${deleteTarget.bed} ${deleteTarget.patient}，${formatTime(deleteTarget.measuredAt)} 的紀錄。刪除後無法復原。`}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>取消</AlertDialogCancel>
-            <DangerButton
-              onClick={() => {
-                setRecords((rs) => rs.filter((r) => r.id !== deleteTarget?.id))
-                setDeleteTarget(null)
-              }}
-            >
-              刪除
-            </DangerButton>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <VitalSignDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        editing={editing}
+        searchPatients={searchDemoPatients}
+        onSubmit={save}
+      />
     </div>
   )
 }
@@ -558,116 +283,28 @@ function Section({
   )
 }
 
-function RowActions({
-  record,
-  onEdit,
-  onDelete,
-}: {
-  record: VitalRecord
-  onEdit: (r: VitalRecord) => void
-  onDelete: (r: VitalRecord) => void
-}) {
-  return (
-    <div className="flex justify-end gap-2">
-      <Button variant="outline" size="sm" onClick={() => onEdit(record)}>
-        <PencilIcon data-icon="inline-start" />編輯
-      </Button>
-      <Button variant="ghost" size="sm" onClick={() => onDelete(record)}>
-        <Trash2Icon data-icon="inline-start" />刪除
-      </Button>
-    </div>
-  )
-}
-
-function Vital({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <dt className="text-xs text-muted-foreground">{label}</dt>
-      <dd className="font-medium tabular-nums">{value}</dd>
-    </div>
-  )
-}
-
-function EmptyState() {
-  return <p className="p-8 text-center text-sm text-muted-foreground">目前沒有紀錄</p>
-}
-
-function TextField({
-  id,
-  label,
-  value,
-  error,
-  onChange,
-  inputMode,
-  step,
-}: {
-  id: string
-  label: string
-  value: string
-  error?: string
-  onChange: (value: string) => void
-  inputMode?: "decimal"
-  step?: string
-}) {
-  return (
-    <div className="space-y-2">
-      <Label htmlFor={id}>{label}</Label>
-      <Input
-        id={id}
-        value={value}
-        inputMode={inputMode}
-        type={inputMode ? "number" : "text"}
-        step={step}
-        aria-invalid={error ? true : undefined}
-        aria-describedby={error ? `${id}-error` : undefined}
-        onChange={(e) => onChange(e.target.value)}
-      />
-      <FieldError id={`${id}-error`} message={error} />
-    </div>
-  )
-}
-
-function AbnormalList({ form }: { form: FormValues }) {
-  const r = {
-    temperature: Number(form.temperature), pulse: Number(form.pulse), respiration: Number(form.respiration),
-    systolic: Number(form.systolic), spo2: Number(form.spo2),
-  }
-  const s = judge(r)
-  const items = [
-    { label: "體溫", value: `${r.temperature} °C`, status: s.temperature },
-    { label: "脈搏", value: `${r.pulse} 次/分`, status: s.pulse },
-    { label: "呼吸", value: `${r.respiration} 次/分`, status: s.respiration },
-    { label: "收縮壓", value: `${r.systolic} mmHg`, status: s.bp },
-    { label: "血氧", value: `${r.spo2} %`, status: s.spo2 },
-  ].filter((i) => i.status !== "normal")
-  return (
-    <ul className="space-y-2 text-sm">
-      {items.map((i) => (
-        <li key={i.label} className="flex items-center justify-between gap-3">
-          <span>{i.label} <span className="font-medium tabular-nums">{i.value}</span></span>
-          <StatusBadge status={i.status} />
-        </li>
-      ))}
-    </ul>
-  )
-}
-
 // ── 共用表單元件示範 ─────────────────────────────────
 
 const demoSchema = z.object({
   bed: z.string().min(1, "請輸入床號").max(10, "床號最多 10 個字"),
   password: z.string().min(1, "請輸入密碼"),
   ward: z.string(),
+  temperature: z.string().min(1, "請輸入體溫"),
+  measuredAt: z.string().min(1, "請輸入記錄時間"),
+  patient: z
+    .object({ id: z.number(), medicalRecordNo: z.string(), name: z.string() })
+    .nullable()
+    .refine((p) => p !== null, "請選擇病患"),
 })
 
-type DemoValues = z.infer<typeof demoSchema>
+type DemoValues = z.input<typeof demoSchema>
 
 function FormDemo() {
   const form = useForm<DemoValues>({
     resolver: zodResolver(demoSchema),
     mode: "onSubmit",
     reValidateMode: "onChange",
-    defaultValues: { bed: "", password: "", ward: "A 病房" },
+    defaultValues: { bed: "", password: "", ward: "A 病房", temperature: "", measuredAt: "", patient: null },
   })
   const [alert, setAlert] = useState<string | null>(null)
 
@@ -687,9 +324,23 @@ function FormDemo() {
             <div className="sm:col-span-2">
               <FormAlert message={alert} />
             </div>
-            <SharedTextField<DemoValues> name="bed" label="TextField（去掉前後空白）" maxLength={10} placeholder="A-101" />
+            <TextField<DemoValues> name="bed" label="TextField（去掉前後空白）" maxLength={10} placeholder="A-101" />
             <PasswordField<DemoValues> name="password" label="PasswordField（可切換顯示）" />
-            <SharedTextField<DemoValues> name="ward" label="停用" disabled />
+            <NumberField<DemoValues> name="temperature" label="NumberField（單位在右側）" unit="°C" decimal />
+            <DateTimeField<DemoValues> name="measuredAt" label="DateTimeField（到分鐘）" />
+            <div className="sm:col-span-2">
+              <ComboboxField<DemoValues, PatientOption>
+                name="patient"
+                label="ComboboxField（邊輸入邊查詢）"
+                placeholder="輸入病歷號或姓名"
+                search={searchDemoPatients}
+                itemKey={(p) => p.id}
+                itemLabel={patientLabel}
+                emptyText="找不到符合的病患"
+                moreText="符合的病患超過 20 位，請輸入更多字"
+              />
+            </div>
+            <TextField<DemoValues> name="ward" label="停用" disabled />
             <div className="flex items-end">
               <SubmitButton>送出</SubmitButton>
             </div>

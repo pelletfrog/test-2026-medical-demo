@@ -26,12 +26,14 @@ io.github.pelletfrog.vitals
 │   ├── TimeZones.java           ← Asia/Taipei 常數與 API 時間格式（§1.8）
 │   ├── PageResponse.java        ← 列表的分頁回應（§1.9）
 │   ├── GlobalExceptionHandler.java
-│   └── NotFoundException.java
+│   ├── NotFoundException.java   ← 找不到資料，回 404
+│   └── FieldErrorException.java ← 要查資料庫才知道的欄位錯誤，回 400 並放進 errors
 └── config/
     ├── SecurityConfig.java
     ├── JpaAuditingConfig.java   ← @EnableJpaAuditing、AuditorAware（§1.7）
     ├── JacksonConfig.java       ← Instant 的 API 格式（§1.8）
-    └── ClockConfig.java         ← Asia/Taipei 的 Clock（§1.8）
+    ├── ClockConfig.java         ← Asia/Taipei 的 Clock（§1.8）
+    └── ValidationConfig.java    ← 時間的驗證註解用注入的 Clock（§1.8）
 ```
 
 ### 1.2 分層
@@ -153,11 +155,9 @@ io.github.pelletfrog.vitals
 - 只做淺色模式，不加 `.dark`
 - 畫面上不放任何公司的 logo 或名稱
 - `destructive`、`success`、`warning` 只能當底色，上面一律配對應的 `-foreground`：配白字或直接當文字色，對比都不夠
-- 生命徵象異常用「底色徽章 + 圖示 + 文字」表示，不只靠改數字顏色，色弱的人才分得出來
 - `muted-foreground` 放在 `muted` 淡底上對比不夠，小字盡量放白底
 - `components/ui/` 是 shadcn 產生的檔案，不直接修改，重新安裝或升級時會被覆蓋；樣式不符合上面的規則時，在 `components/` 包一層：
   - 危險操作的按鈕用 `components/danger-button.tsx` 的 `DangerButton`，不直接用 `<Button variant="destructive">`
-  - 生命徵象狀態用 `components/status-badge.tsx` 的 `StatusBadge`，不直接用 `<Badge variant="destructive">`
 - 例外：`hooks/use-mobile.ts` 為了通過 lint 改寫過；重新安裝 sidebar 會被覆蓋，屆時照檔案裡的註解改回來
 
 ### 2.5 表單
@@ -166,6 +166,9 @@ io.github.pelletfrog.vitals
 - 頁面只用 `components/form/` 的共用元件，不直接組 `Input` + `Label`：每頁的排版與錯誤位置一致；元件的樣子看 `/design-system` 頁，用到新的欄位類型時先加共用元件與 `/design-system` 範例
   - `TextField`：去掉前後空白
   - `PasswordField`：可切換顯示，不去掉前後空白
+  - `NumberField`：單位放在輸入框右側；不用 `type="number"`，表單值是字串，由 Zod 檢查與轉換
+  - `DateTimeField`：到分鐘，表單值是 `yyyy-MM-ddTHH:mm`，送出前用 `lib/date-time.ts` 轉成 API 的格式
+  - `ComboboxField`：選項很多時用，邊輸入邊向後端查詢
   - `FormAlert`：表單上方的訊息
   - `SubmitButton`：處理中停用並顯示載入中
 - 前端檢查必填、長度、格式、範圍，讓使用者馬上看到；後端用 `@Valid` 再檢查一次，以後端為準；業務規則（例如病歷號重複）只由後端檢查

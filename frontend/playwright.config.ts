@@ -9,6 +9,8 @@ try {
 
 export default defineConfig({
   testDir: "e2e",
+  // 一次只跑一個測試檔：病患與生命徵象的 E2E 都會新增病患，同時跑時會搶走「最新新增的在最上面」的第一筆
+  workers: 1,
   use: {
     baseURL: "http://localhost:3000",
     trace: "retain-on-failure",

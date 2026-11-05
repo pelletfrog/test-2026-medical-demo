@@ -37,6 +37,8 @@ class PatientDataTest {
 
 	@BeforeEach
 	void setUp() {
+		// 生命徵象參照病患，要先刪掉才能清空病患
+		jdbc.update("DELETE FROM vital_signs");
 		jdbc.update("DELETE FROM patients");
 	}
 

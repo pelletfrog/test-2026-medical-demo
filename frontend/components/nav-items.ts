@@ -1,8 +1,9 @@
-import { PaletteIcon, UsersIcon } from "lucide-react"
+import { ActivityIcon, PaletteIcon, UsersIcon } from "lucide-react"
 
 // 側邊選單與頂部標題共用同一份清單，新增頁面時只改這裡
 export const navItems = [
   { title: "病患列表", href: "/patients", icon: UsersIcon },
+  { title: "生命徵象", href: "/vital-signs", icon: ActivityIcon },
   { title: "Design System", href: "/design-system", icon: PaletteIcon },
 ]
 
