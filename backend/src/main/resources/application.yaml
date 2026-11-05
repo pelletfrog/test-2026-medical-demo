@@ -11,6 +11,11 @@ spring:
       file: ../compose.yaml
       # 後端停掉時資料庫繼續跑，重啟後端不用等資料庫重新啟動
       lifecycle-management: start-only
+  data:
+    web:
+      pageable:
+        # 頁碼從 1 開始，和畫面、網址上的頁碼相同，見 docs/conventions.md §1.9
+        one-indexed-parameters: true
   jpa:
     hibernate:
       ddl-auto: validate

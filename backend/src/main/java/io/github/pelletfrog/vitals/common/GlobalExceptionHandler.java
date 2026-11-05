@@ -1,6 +1,8 @@
 package io.github.pelletfrog.vitals.common;
 
+import java.util.Comparator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -8,6 +10,7 @@ import io.github.pelletfrog.vitals.auth.InvalidCredentialsException;
 import io.github.pelletfrog.vitals.auth.NotAuthenticatedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -31,14 +34,25 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
 	static final String FIELD_ERRORS_SUMMARY = "請修正標示的欄位";
 
+	// 同一個欄位違反多條規則時，依這個順序只顯示一則：先填、再改長度、最後改格式；
+	// Spring 回報欄位錯誤的順序不固定，不排序的話同樣的輸入每次訊息可能不同
+	private static final List<String> FIELD_ERROR_PRIORITY = List.of("NotBlank", "NotNull", "Size", "Pattern");
+
+	private record FieldConflict(String field, String message) {
+	}
+
+	// 唯一約束名稱 → 欄位與訊息；約束命名見 conventions §1.5
+	private static final Map<String, FieldConflict> UNIQUE_CONSTRAINTS = Map.of(
+			"uk_patients_medical_record_no", new FieldConflict("medicalRecordNo", "病歷號已存在"));
+
 	@Override
 	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
 			HttpHeaders headers, HttpStatusCode status, WebRequest request) {
 		// 每個欄位只放一則：前端一個欄位下方只顯示一個錯誤
 		Map<String, String> errors = new LinkedHashMap<>();
-		for (FieldError error : ex.getBindingResult().getFieldErrors()) {
-			errors.putIfAbsent(error.getField(), error.getDefaultMessage());
-		}
+		ex.getBindingResult().getFieldErrors().stream()
+				.sorted(Comparator.comparingInt(GlobalExceptionHandler::priority))
+				.forEach(error -> errors.putIfAbsent(error.getField(), error.getDefaultMessage()));
 
 		// 不能歸給某個欄位的錯誤寫在 detail；只有欄位錯誤時，detail 只寫摘要，不重複欄位訊息
 		String globalMessages = ex.getBindingResult().getGlobalErrors().stream()
@@ -58,6 +72,25 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 			HttpHeaders headers, HttpStatusCode status, WebRequest request) {
 		return ResponseEntity.badRequest()
 				.body(ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "請求格式錯誤"));
+	}
+
+	private static int priority(FieldError error) {
+		int index = FIELD_ERROR_PRIORITY.indexOf(error.getCode());
+		return index < 0 ? FIELD_ERROR_PRIORITY.size() : index;
+	}
+
+	@ExceptionHandler(DataIntegrityViolationException.class)
+	ProblemDetail dataIntegrityViolation(DataIntegrityViolationException ex) {
+		FieldConflict conflict = ex.getCause() instanceof org.hibernate.exception.ConstraintViolationException cve
+				? UNIQUE_CONSTRAINTS.get(cve.getConstraintName())
+				: null;
+		if (conflict == null) {
+			// 其他約束錯誤表示 API 的驗證漏擋了，是程式的問題
+			return unexpected(ex);
+		}
+		ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, FIELD_ERRORS_SUMMARY);
+		problem.setProperty("errors", Map.of(conflict.field(), conflict.message()));
+		return problem;
 	}
 
 	@ExceptionHandler(InvalidCredentialsException.class)
