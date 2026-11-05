@@ -20,17 +20,26 @@
 | 後端 | 本機 | Spring Boot |
 | 前端 | 本機 | Next.js |
 
+- API 文件：後端啟動後開 <http://localhost:8080/swagger-ui.html>
 - 前端呼叫的 `/api/*` 由 Next.js rewrites 轉到後端的 8080（只在開發模式啟用；登入功能時加上）
-- 設定檔：repo 根目錄的 `compose.yaml`；帳密在 `.env`（不進 git，範本是 `.env.example`）
+- 設定檔：repo 根目錄的 `compose.yaml`；帳密與密鑰在 `.env`（不進 git，範本是 `.env.example`），後端也從這裡讀預設帳號與 JWT 密鑰
 - 連接埠只綁 `127.0.0.1`，同網路的其他電腦連不到
 - 資料庫與 pgAdmin 的資料放在 named volume，刪掉容器資料仍在
 
 ## 2. 啟動
 
+- 後端與前端啟動後會一直佔住終端機，各開一個終端機，都從 repo 根目錄開始
+
 ```bash
-cp .env.example .env                          # 只有第一次
-cd backend && ./mvnw spring-boot:run          # 看到 Tomcat started on port 8080 即成功
-cd frontend && npm install && npm run dev
+cp .env.example .env                          # 只有第一次；之後 .env.example 新增的變數要自己補進 .env
+```
+
+```bash
+cd backend && ./mvnw spring-boot:run          # 終端機 1；看到 Started VitalsApiApplication 即成功
+```
+
+```bash
+cd frontend && npm install && npm run dev     # 終端機 2
 ```
 
 - 後端啟動時，Spring Boot 的 Docker Compose Support 會自動啟動 `compose.yaml` 的服務；後端停止時不關資料庫，重啟後端不用等資料庫

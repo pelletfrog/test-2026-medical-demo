@@ -81,13 +81,14 @@ io.github.pelletfrog.vitals
 - 已經執行過的 migration 不修改，要改資料表就新增下一個版本
 - `ddl-auto: validate`：Hibernate 只檢查 Entity 和資料表是否一致，對不上時啟動就失敗；改了 Entity 要自己寫對應的 migration
 - 唯一約束命名為 `uk_<表>_<欄位>`：`GlobalExceptionHandler` 從約束名稱找出欄位，放進 `errors`
-- 外鍵欄位要建索引：PostgreSQL 不會自動建立；共用欄位 `createdBy`、`updatedBy`、`deletedBy` 例外，很少用來查詢
+- 外鍵欄位要建索引：PostgreSQL 不會自動建立；共用欄位 `createdBy`、`updatedBy` 例外，很少用來查詢
 - 為了查詢速度建的索引不寫進文件，在 migration 用 SQL 註解寫原因
 
 ### 1.6 設定
 
 - 只有一份 `application.yaml`，不分環境建檔；會因環境不同的值寫成 `${環境變數:預設值}`，本機用預設值，dev 用環境變數
 - 例外：帳號、密碼、密鑰等機密不給預設值，本機也從 `.env` 讀取：給了預設值就等於公開的密碼
+  - 寫成 `${環境變數:}`（冒號後面空白），並用 `@NotBlank` 檢查：沒設定時 Spring 會把 `${…}` 原字串當成值，檢查不出來
 
 ### 1.7 Entity 共用欄位
 
@@ -99,7 +100,6 @@ io.github.pelletfrog.vitals
   - `AuditorAware` 從 JWT 的 `sub` 取得使用者 `id`；未登入時回傳 `Optional.empty()`，例如啟動時建立預設帳號
 - 資料不實體刪除；查詢一律排除已刪除的資料
   - 每個 Entity 加 `@SoftDelete(strategy = SoftDeleteType.TIMESTAMP, columnName = "deleted_at")`：刪除與查詢排除由 Hibernate 處理，不靠每個查詢自己加條件
-  - Auditing 不處理刪除，`@SoftDelete` 也只填 `deleted_at`：刪除前先呼叫 `markDeletedBy`，並和 `delete` 在同一個 `@Transactional` 方法裡，否則 `deletedBy` 不會寫入
   - 刪除用 `delete` / `deleteById`，不用 `deleteAllInBatch` 等批次刪除：批次刪除是否轉成軟刪除未確認
   - 原生 SQL 不會自動排除已刪除的資料，要自己加 `deleted_at IS NULL`
 - 唯一約束包含已刪除的資料：避免病歷號、帳號被重複使用

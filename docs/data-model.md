@@ -4,7 +4,7 @@
 
 ## 1. ERD
 
-- 共用欄位不畫；各表的 `createdBy`、`updatedBy`、`deletedBy` 都參照使用者，只畫一條代表
+- 共用欄位不畫；各表的 `createdBy`、`updatedBy` 都參照使用者，只畫一條代表
 
 ```mermaid
 erDiagram
@@ -36,7 +36,6 @@ erDiagram
 | `createdBy` | 建立者的使用者 `id`；系統建立時為空 |
 | `updatedBy` | 最後修改者的使用者 `id`；系統建立時為空 |
 | `deletedAt` | 刪除時間，含時區；空值表示未刪除 |
-| `deletedBy` | 刪除者的使用者 `id` |
 
 ### 2.1 使用者（`users`）
 

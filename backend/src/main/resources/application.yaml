@@ -1,6 +1,10 @@
 spring:
   application:
     name: vitals-api
+  config:
+    # 本機的帳號與密鑰和資料庫一樣只放在 repo 根目錄的 .env；dev 環境沒有這個檔，直接用環境變數
+    # 要指定 UTF-8：properties 預設用 ISO-8859-1 讀，中文姓名會變成亂碼
+    import: optional:file:../.env[.properties][encoding=utf-8]
   docker:
     compose:
       # 從 backend/ 啟動，compose.yaml 在上一層
@@ -12,3 +16,15 @@ spring:
       ddl-auto: validate
     open-in-view: false
     show-sql: true
+
+app:
+  # 機密不給預設值：給了就等於公開的密碼
+  # 寫成「:」後面空白：沒設定時 Spring 會保留 ${...} 原字串當成值，空字串才會被 @NotBlank 擋下、啟動失敗
+  admin:
+    username: ${ADMIN_USERNAME:}
+    password: ${ADMIN_PASSWORD:}
+    name: ${ADMIN_NAME:}
+  jwt:
+    secret: ${JWT_SECRET:}
+    expiry: ${JWT_EXPIRY:12h}
+    cookie-secure: ${COOKIE_SECURE:false}
