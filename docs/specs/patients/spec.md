@@ -13,8 +13,8 @@
 | 方法 | 路徑 | 用途 | 對應 REQ |
 |---|---|---|---|
 | GET | `/api/patients` | 病患列表 | |
-| POST | `/api/patients` | 新增病患（驗證失敗 400、病歷號重複 409） | |
-| GET | `/api/patients/{id}` | 查看單一病患（找不到 404） | |
+| POST | `/api/patients` | 新增病患 | |
+| GET | `/api/patients/{id}` | 查看單一病患 | |
 
 ## 4. 畫面
 

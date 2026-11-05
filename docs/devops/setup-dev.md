@@ -19,6 +19,7 @@
 
 - 設定檔：repo 根目錄的 `compose.dev.yaml`；Nginx 裝在主機上，不在 compose 裡
 - 環境變數：伺服器上的 `.env`，意思與預設值看 `.env.example`
+- 資料庫連線用 `SPRING_DATASOURCE_URL`、`SPRING_DATASOURCE_USERNAME`、`SPRING_DATASOURCE_PASSWORD`：Spring Boot 內建認得的名稱
 - 安全群組只開 22（限自己的 IP）、80、443；資料庫不對外
 
 ## 2. 部署

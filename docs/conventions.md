@@ -84,7 +84,7 @@ io.github.pelletfrog.vitals
 - `components/ui/` 是 shadcn 產生的檔案，不直接修改，重新安裝或升級時會被覆蓋；樣式不符合上面的規則時，在 `components/` 包一層：
   - 危險操作的按鈕用 `components/danger-button.tsx` 的 `DangerButton`，不直接用 `<Button variant="destructive">`
   - 生命徵象狀態用 `components/status-badge.tsx` 的 `StatusBadge`，不直接用 `<Badge variant="destructive">`
-- 例外：`hooks/use-mobile.ts` 原本過不了 lint，已改寫；重新安裝 sidebar 會被覆蓋，屆時照檔案裡的註解改回來
+- 例外：`hooks/use-mobile.ts` 為了通過 lint 改寫過；重新安裝 sidebar 會被覆蓋，屆時照檔案裡的註解改回來
 
 ## 3. 測試
 

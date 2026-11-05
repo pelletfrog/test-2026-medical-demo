@@ -22,6 +22,7 @@
 ## 5. 做法
 
 - 用 Spring Security 內建的 `oauth2-resource-server` 驗證 JWT，用 `JwtEncoder` 簽發，不另外引入第三方 JWT 套件
+- 密碼用 BCrypt 雜湊後儲存
 - 預設帳號用 `CommandLineRunner` 在啟動時建立，帳號密碼從環境變數讀取
 - Session 設為 stateless
 

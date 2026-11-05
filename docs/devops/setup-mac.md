@@ -15,6 +15,7 @@
 | `pom.xml` | 列出專案用到的套件 | `requirements.txt` |
 | start.spring.io | 產生 Spring Boot 專案 | `django-admin startproject` |
 | Docker Desktop | 在本機跑 PostgreSQL | 同 |
+| nvm、Node.js 24 | 管理 Node 版本、執行前端 | pyenv、Python 直譯器 |
 | VS Code | 編輯器 | 同 |
 
 ## 1. Homebrew
@@ -62,7 +63,7 @@ java -version                     # 應顯示 25.0.x
 sdk current java
 ```
 
-> Temurin 是 Eclipse 基金會發行的免費 JDK，是最常用的版本之一。
+Temurin 是 Eclipse 基金會發行的免費 JDK。
 
 ## 3. Maven：不用另外安裝
 
@@ -228,7 +229,7 @@ spring:
 這裡**不寫資料庫的網址、帳號、密碼**：
 
 - 本機：Docker Compose Support 會讀 `compose.yaml`，從資料庫容器的設定（也就是 `.env` 的值）自動取得連線資訊。帳號密碼只存在 `.env` 一個地方。
-- dev 環境（EC2）：用環境變數 `SPRING_DATASOURCE_URL`、`SPRING_DATASOURCE_USERNAME`、`SPRING_DATASOURCE_PASSWORD` 提供，這是 Spring Boot 內建認得的名稱。
+- dev 環境：見 [setup-dev.md](setup-dev.md) §1。
 
 | 設定 | 意思 |
 |---|---|
