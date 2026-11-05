@@ -13,7 +13,6 @@
 | 寫前端程式前先看（Next.js 產生，要 AI 依已安裝版本的文件寫程式） | `frontend/AGENTS.md` |
 | Mac 開發環境建置與建立專案（新手） | `docs/setup-mac.md` |
 | 本機啟動與常用指令 | `README.md` |
-| 部署到 AWS | `docs/deploy.md` |
 | commit 訊息格式 | `.claude/skills/c-commit/conventions.md`（用 `/c-commit`） |
 
 ## 開發流程
