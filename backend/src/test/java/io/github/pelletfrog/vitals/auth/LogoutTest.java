@@ -32,10 +32,10 @@ class LogoutTest {
 				.andReturn()
 				.getResponse();
 
-		// 瀏覽器照 Set-Cookie 刪掉後，之後的請求就沒有憑證
+		// 帶著登出回應給的 cookie 再讀資料，等於瀏覽器照 Set-Cookie 更新後的狀態
 		Cookie cleared = response.getCookie(AuthCookies.NAME);
 		assertThat(cleared.getValue()).isEmpty();
-		mockMvc.perform(get("/api/auth/me"))
+		mockMvc.perform(get("/api/auth/me").cookie(cleared))
 				.andExpect(status().isUnauthorized());
 	}
 

@@ -1,9 +1,17 @@
 "use client"
 
 import { useState } from "react"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { CircleAlertIcon, PencilIcon, PlusIcon, Trash2Icon } from "lucide-react"
+import { FormProvider, useForm } from "react-hook-form"
+import { z } from "zod"
 
 import { DangerButton } from "@/components/danger-button"
+import { applyApiError } from "@/components/form/api-error"
+import { FormAlert } from "@/components/form/form-alert"
+import { PasswordField } from "@/components/form/password-field"
+import { SubmitButton } from "@/components/form/submit-button"
+import { TextField as SharedTextField } from "@/components/form/text-field"
 import { StatusBadge, type VitalStatus } from "@/components/status-badge"
 import {
   AlertDialog,
@@ -49,6 +57,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Textarea } from "@/components/ui/textarea"
+import { ApiError } from "@/lib/api/client"
 
 // ── 色票 ─────────────────────────────────────────────
 
@@ -302,22 +311,16 @@ export default function DesignSystemPage() {
       </Section>
 
       {/* 表單元件 */}
-      <Section title="表單元件" description="錯誤狀態的橘色外框只有 2.55:1，還沒處理，見頁尾「待決定」。">
+      <Section
+        title="表單元件"
+        description="頁面只用 components/form/ 的元件。直接按「送出」看必填提示；填好再送出，會示範後端回傳的錯誤。錯誤狀態的橘色外框只有 2.55:1，還沒處理，見頁尾「待決定」。"
+      >
+        <FormDemo />
+      </Section>
+
+      <Section title="還沒有共用元件的欄位" description="用到時先在 components/form/ 加共用元件，再換掉這裡的範例。">
         <Card>
           <CardContent className="grid gap-6 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="demo-input">一般輸入框</Label>
-              <Input id="demo-input" placeholder="請輸入" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="demo-invalid">錯誤狀態</Label>
-              <Input id="demo-invalid" defaultValue="abc" aria-invalid aria-describedby="demo-invalid-error" />
-              <FieldError id="demo-invalid-error" message="體溫須介於 30～45 °C" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="demo-disabled">停用</Label>
-              <Input id="demo-disabled" disabled defaultValue="A-101" />
-            </div>
             <div className="space-y-2">
               <Label htmlFor="demo-select">下拉選單</Label>
               <Select items={siteItems} defaultValue="ear">
@@ -635,5 +638,53 @@ function AbnormalList({ form }: { form: FormValues }) {
         </li>
       ))}
     </ul>
+  )
+}
+
+// ── 共用表單元件示範 ─────────────────────────────────
+
+const demoSchema = z.object({
+  bed: z.string().min(1, "請輸入床號").max(10, "床號最多 10 個字"),
+  password: z.string().min(1, "請輸入密碼"),
+  ward: z.string(),
+})
+
+type DemoValues = z.infer<typeof demoSchema>
+
+function FormDemo() {
+  const form = useForm<DemoValues>({
+    resolver: zodResolver(demoSchema),
+    mode: "onSubmit",
+    reValidateMode: "onChange",
+    defaultValues: { bed: "", password: "", ward: "A 病房" },
+  })
+  const [alert, setAlert] = useState<string | null>(null)
+
+  async function onSubmit() {
+    setAlert(null)
+    // 假裝等後端回應，才看得到 SubmitButton 的處理中狀態
+    await new Promise((resolve) => setTimeout(resolve, 800))
+    const error = new ApiError(400, "請修正標示的欄位", { bed: "示範：後端回傳的欄位錯誤" })
+    setAlert(applyApiError(form, error))
+  }
+
+  return (
+    <Card>
+      <CardContent>
+        <FormProvider {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="grid gap-6 sm:grid-cols-2">
+            <div className="sm:col-span-2">
+              <FormAlert message={alert} />
+            </div>
+            <SharedTextField<DemoValues> name="bed" label="TextField（去掉前後空白）" maxLength={10} placeholder="A-101" />
+            <PasswordField<DemoValues> name="password" label="PasswordField（可切換顯示）" />
+            <SharedTextField<DemoValues> name="ward" label="停用" disabled />
+            <div className="flex items-end">
+              <SubmitButton>送出</SubmitButton>
+            </div>
+          </form>
+        </FormProvider>
+      </CardContent>
+    </Card>
   )
 }

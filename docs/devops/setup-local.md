@@ -21,7 +21,7 @@
 | 前端 | 本機 | Next.js |
 
 - API 文件：後端啟動後開 <http://localhost:8080/swagger-ui.html>
-- 前端呼叫的 `/api/*` 由 Next.js rewrites 轉到後端的 8080（只在開發模式啟用；登入功能時加上）
+- 前端呼叫的 `/api/*` 由 Next.js rewrites 轉到後端的 8080，只在開發模式（`npm run dev`）啟用
 - 設定檔：repo 根目錄的 `compose.yaml`；帳密與密鑰在 `.env`（不進 git，範本是 `.env.example`），後端也從這裡讀預設帳號與 JWT 密鑰
 - 連接埠只綁 `127.0.0.1`，同網路的其他電腦連不到
 - 資料庫與 pgAdmin 的資料放在 named volume，刪掉容器資料仍在
@@ -58,6 +58,11 @@ cd frontend && npm install && npm run dev     # 終端機 2
 | `./mvnw spring-boot:run -Dspring-boot.run.arguments=--debug` | `backend/` | 看自動設定報告：哪些設定生效、為什麼 |
 | `npm run dev` | `frontend/` | 開發模式啟動前端 |
 | `npm run lint` | `frontend/` | 檢查前端程式 |
+| `npm test` | `frontend/` | 跑前端單元測試（Vitest） |
+| `npm test -- -t '<測試名稱>'` | `frontend/` | 只跑名稱包含這段文字的單元測試，例如 `-t 'AUT-003 AC4'` |
+| `npm run e2e` | `frontend/` | 跑 E2E（Playwright）；前後端沒在跑時自動啟動，帳密讀 repo 根目錄的 `.env` |
+| `npm run e2e -- -g '<測試名稱>'` | `frontend/` | 只跑名稱包含這段文字的 E2E，例如 `-g 'AUT-001 AC2'` |
+| `npx playwright install chromium` | `frontend/` | 第一次跑 E2E 前安裝瀏覽器 |
 | `docker compose up -d` | repo 根目錄 | 只啟動資料庫與 pgAdmin，不跑後端 |
 
 ### 3.2 用 pgAdmin 看資料庫

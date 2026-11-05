@@ -31,3 +31,5 @@
 - 資訊安全管理：須遵守 ISO 27001（ISMS）
 - production 環境關閉 Swagger UI 與 API 文件（`/swagger-ui`、`/v3/api-docs`）：目前本機與 dev 都公開
 - 共用欄位 `deletedBy`（刪除者）：`@SoftDelete` 刪除時只填 `deleted_at`，呼叫 `delete` 後 Hibernate 也不會寫入其他修改，要另外處理
+- 登入失敗次數限制：防暴力破解（OWASP ASVS）
+- 登出後，已發出的 JWT 到期前仍然有效：驗證 JWT 不查資料庫，登出只清除瀏覽器的 cookie

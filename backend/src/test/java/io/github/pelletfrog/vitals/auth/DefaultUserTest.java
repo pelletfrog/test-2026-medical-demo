@@ -2,6 +2,7 @@ package io.github.pelletfrog.vitals.auth;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import io.github.pelletfrog.vitals.ApplicationYaml;
 import io.github.pelletfrog.vitals.IntegrationTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -55,13 +56,9 @@ class DefaultUserTest {
 	static class AdminPropertiesOnly {
 	}
 
-	private final ApplicationContextRunner runner = new ApplicationContextRunner()
+	private final ApplicationContextRunner runner = ApplicationYaml.load(new ApplicationContextRunner()
 			.withConfiguration(AutoConfigurations.of(ValidationAutoConfiguration.class))
-			.withUserConfiguration(AdminPropertiesOnly.class)
-			.withPropertyValues(
-					"app.admin.username=${ADMIN_USERNAME:}",
-					"app.admin.password=${ADMIN_PASSWORD:}",
-					"app.admin.name=${ADMIN_NAME:}");
+			.withUserConfiguration(AdminPropertiesOnly.class));
 
 	@Test
 	@DisplayName("AUT-002 AC3 帳號設定不正確")
@@ -70,6 +67,9 @@ class DefaultUserTest {
 		runner.withPropertyValues("ADMIN_PASSWORD=pw", "ADMIN_NAME=林小護")
 				.run(context -> assertThat(context).getFailure()
 						.hasStackTraceContaining("ADMIN_USERNAME 未設定"));
+		runner.withPropertyValues("ADMIN_USERNAME=nurse01", "ADMIN_PASSWORD=pw")
+				.run(context -> assertThat(context).getFailure()
+						.hasStackTraceContaining("ADMIN_NAME 未設定"));
 
 		// 空白也算沒設定
 		runner.withPropertyValues("ADMIN_USERNAME=nurse01", "ADMIN_PASSWORD=", "ADMIN_NAME=林小護")

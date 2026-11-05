@@ -23,7 +23,7 @@ public class AuthService {
 
 	@Transactional(readOnly = true)
 	public User login(String username, String password) {
-		// 建立帳號時已擋下超過 72 byte 的密碼，這種輸入不可能正確；BCrypt 遇到也會丟例外
+		// 建立帳號時已擋下超過 72 byte 的密碼，這種輸入不可能正確，不用花時間跑 BCrypt
 		if (password.getBytes(StandardCharsets.UTF_8).length > 72) {
 			throw new InvalidCredentialsException();
 		}

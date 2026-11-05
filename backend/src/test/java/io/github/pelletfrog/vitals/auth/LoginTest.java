@@ -51,7 +51,9 @@ class LoginTest {
 	void invalidCredentials() throws Exception {
 		for (String body : new String[] {
 				loginJson(IntegrationTest.ADMIN_USERNAME, "wrong-password"),
-				loginJson("no-such-user", IntegrationTest.ADMIN_PASSWORD) }) {
+				loginJson("no-such-user", IntegrationTest.ADMIN_PASSWORD),
+				// 30 個中文字是 90 byte：沒超過 64 個字，但超過 BCrypt 的 72 byte，不可能是正確的密碼
+				loginJson(IntegrationTest.ADMIN_USERNAME, "密".repeat(30)) }) {
 			mockMvc.perform(post("/api/auth/login")
 							.contentType(MediaType.APPLICATION_JSON)
 							.content(body))
