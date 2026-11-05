@@ -19,7 +19,19 @@ erDiagram
         string medicalRecordNo UK
         string name
     }
+    vital_signs {
+        bigint id PK
+        bigint patientId FK
+        timestamptz measuredAt
+        decimal bodyTemperature
+        int heartRate
+        int respiratoryRate
+        int systolicPressure
+        int diastolicPressure
+        int oxygenSaturation
+    }
     users ||--o{ patients : "建立、修改、刪除"
+    patients ||--o{ vital_signs : "有"
 ```
 
 ## 2. 資料表
@@ -53,15 +65,18 @@ erDiagram
 
 ### 2.3 生命徵象（`vital_signs`）
 
-<!-- 欄位名稱與型別等 vital-signs spec 定案後再寫 -->
+- 數值只限制格式與位數，不限制醫學上的合理範圍，理由見[生命徵象 spec](specs/vital-signs/spec.md) §5
 
-| 項目 | 英文 | 單位 |
-|---|---|---|
-| 體溫 | Body Temperature | °C |
-| 心跳 | Heart Rate | 次/分 |
-| 呼吸 | Respiratory Rate | 次/分 |
-| 收縮壓／舒張壓 | Systolic / Diastolic Blood Pressure | mmHg |
-| 血氧 | SpO₂ | % |
+| 欄位 | 說明 |
+|---|---|
+| `patientId` | 病患，參照 `patients` |
+| `measuredAt` | 記錄時間，含時區，到分鐘；同一位病患的記錄時間唯一，含已刪除的資料 |
+| `bodyTemperature` | 體溫（°C），0～999.9，最多 1 位小數 |
+| `heartRate` | 心跳（次/分），0～999 的整數 |
+| `respiratoryRate` | 呼吸（次/分），0～999 的整數 |
+| `systolicPressure` | 收縮壓（mmHg），0～999 的整數 |
+| `diastolicPressure` | 舒張壓（mmHg），0～999 的整數 |
+| `oxygenSaturation` | 血氧（%），0～999 的整數 |
 
 ## 3. 不變條件
 

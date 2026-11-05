@@ -8,7 +8,7 @@
 |---|---|---|---|
 | 登入 | [auth/login](auth/login/spec.md) | AUT | 定案 |
 | 病患 | [patients](patients/spec.md) | PAT | 定案 |
-| 生命徵象 | [vital-signs](vital-signs/spec.md) | VIT | 草稿 |
+| 生命徵象 | [vital-signs](vital-signs/spec.md) | VIT | 定案 |
 
 ## 2. 新增功能
 

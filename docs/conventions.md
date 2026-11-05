@@ -193,7 +193,7 @@ io.github.pelletfrog.vitals
 | 標記 | 種類 | 工具 | 測什麼 | 放哪裡 |
 |---|---|---|---|---|
 | 〔後端〕 | 後端整合測試 | JUnit 5 + Spring Boot Test（MockMvc）+ Testcontainers | 從 API 打進去、接真的 PostgreSQL，例如帳密檢查、資料驗證、存取資料 | `backend/src/test/java/` |
-| 〔後端〕 | 後端單元測試 | JUnit 5 | 不需要 Spring 與資料庫的純邏輯，例如生命徵象的異常判斷 | `backend/src/test/java/` |
+| 〔後端〕 | 後端單元測試 | JUnit 5 | 不需要 Spring 與資料庫的純邏輯，例如時間格式的轉換 | `backend/src/test/java/` |
 | 〔前端〕 | 前端單元測試 | Vitest | 只由前端決定的邏輯，例如站內網址檢查 | 和被測的檔案放在一起，`*.test.ts` |
 | 〔E2E〕 | E2E | Playwright | 跨前後端的主要畫面流程，例如登入後導向 | `frontend/e2e/` |
 
