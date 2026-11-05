@@ -33,3 +33,6 @@
 - 共用欄位 `deletedBy`（刪除者）：`@SoftDelete` 刪除時只填 `deleted_at`，呼叫 `delete` 後 Hibernate 也不會寫入其他修改，要另外處理
 - 登入失敗次數限制：防暴力破解（OWASP ASVS）
 - 登出後，已發出的 JWT 到期前仍然有效：驗證 JWT 不查資料庫，登出只清除瀏覽器的 cookie
+- log 設定
+-  系統架構
+- cicd
