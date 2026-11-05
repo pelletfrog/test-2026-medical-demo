@@ -13,6 +13,8 @@
 ## 2. 新增功能
 
 - 複製 [`_template/spec.md`](_template/spec.md) 到 `specs/<功能>/spec.md`（同一領域有多個功能時再分一層，例如 `auth/login`），並在 §1 功能清單加一列
+- 使用者確認 REQ 與 AC 後，spec 開頭與 §1 功能清單的狀態改成「定案」；`/c-dev` 只開發定案的 spec
+- 定案後修改 REQ 或 AC，狀態維持定案，用 `/c-dev` 讓測試與程式跟上
 
 ## 3. 編號規則
 

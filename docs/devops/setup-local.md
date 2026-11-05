@@ -43,6 +43,7 @@ cd frontend && npm install && npm run dev
 |---|---|---|
 | `./mvnw spring-boot:run` | `backend/` | 開發模式啟動後端 |
 | `./mvnw test` | `backend/` | 跑後端測試（Testcontainers 另開臨時資料庫，Docker Desktop 要開著） |
+| `./mvnw test -Dtest='<類別>#<方法>'` | `backend/` | 只跑指定的測試，例如 `-Dtest='LoginTest#invalidCredentials'`；省略 `#<方法>` 跑整個類別 |
 | `./mvnw clean package` | `backend/` | 打包成 `target/*.jar` |
 | `./mvnw dependency:tree` | `backend/` | 看依賴樹 |
 | `./mvnw spring-boot:run -Dspring-boot.run.arguments=--debug` | `backend/` | 看自動設定報告：哪些設定生效、為什麼 |
